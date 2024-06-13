@@ -20,14 +20,16 @@ from Load_Genz_Data import load_genz_data
 from plot_num_subjs import plot_num_subjs
 from Utility_Functions import create_design_matrix, plot_data_with_spline, create_dummy_design_matrix
 from Utility_Functions import barplot_performance_values, plot_y_v_yhat, makenewdir, movefiles
+from fusiform_spline_plots import plot_data_with_spline_rh_fusiform
 from Utility_Functions import write_ages_to_file
+from plot_and_compute_zdistributions import plot_and_compute_zcores_by_gender
 
 struct_var = 'cortthick'
 show_plots = 0  #set to 1 to show training and test data ymvs yhat and spline fit plots.
-show_nsubject_plots = 1 #set to 1 to plot number of subjects used in analysis, for each age and gender
+show_nsubject_plots = 0 #set to 1 to plot number of subjects used in analysis, for each age and gender
 spline_order = 1 # order of spline to use for model
 spline_knots = 2 # number of knots in spline to use in model
-perform_train_test_split_precovid = 1  # flag indicating whether to split training set (pre-covid data) into train and
+perform_train_test_split_precovid = 0  # flag indicating whether to split training set (pre-covid data) into train and
                                        # validations (test) sets. If this is set to 0, the entire training set is used
                                        # for the model and there is no validation set. Regardless of the value of this
                                        # flag, no post-covid data is used in creating or evaluating the normative model.
@@ -183,6 +185,9 @@ subjects_train = subjects_train.reshape(-1,1)
 Z_score_test_matrix = pd.DataFrame(subjects_test, columns=['subject_id_test'])
 Z_score_train_matrix = pd.DataFrame(subjects_train, columns=['subject_id_train'])
 
+# Create dataframe to store variances
+variance_time1 = pd.DataFrame(subjects_test, columns=['participant_id'])
+
 # Estimate the normative model using a for loop to iterate over brain regions. The estimate function uses a few
 # specific arguments that are worth commenting on:
 # ●alg=‘blr’: specifies we should use BLR. See Table1 for other available algorithms
@@ -216,6 +221,8 @@ for roi in roi_ids:
                                                 testcov=cov_file_te,alg='blr',optimizer='powell',
                                                 savemodel=True, saveoutput=False,standardize=False)
 
+    variance_time1[roi] = s2_te
+
     Rho_te=metrics_te['Rho']
     EV_te=metrics_te['EXPV']
 
@@ -232,6 +239,11 @@ for roi in roi_ids:
                           dummy_cov_file_path_male, model_dir, roi, show_plots, working_dir)
     plot_data_with_spline('Validation Data', struct_var, cov_file_te, resp_file_te, dummy_cov_file_path_female,
                           dummy_cov_file_path_male, model_dir, roi, show_plots, working_dir)
+
+    if roi == 'cortthick-rh-fusiform':
+        plot_data_with_spline_rh_fusiform('Pre-COVID Subsample ', struct_var, cov_file_tr, resp_file_tr,
+                                          dummy_cov_file_path_female, dummy_cov_file_path_male, model_dir, roi,
+                                          show_plots, working_dir)
 
     #add a row to the blr_metrics dataframe containing ROI, MSLL, EXPV, SMSE, RMSE, and Rho metrics
     blr_metrics.loc[len(blr_metrics)]=[roi, metrics_te['MSLL'][0],
@@ -260,6 +272,14 @@ blr_site_metrics.to_csv('{}/data/{}/blr_metrics_{}.txt'.format(working_dir, stru
 #save validation z scores to file
 Z_score_test_matrix.to_csv('{}/data/{}/Z_scores_by_region_validation_set.txt'. format(working_dir, struct_var),
                            index=False)
+
+# write variance to file
+variance_time1.to_csv(f'{working_dir}/variance in predictions for pre-covid (time1) data', index=False)
+
+# if perform_train_test_split_precovid:
+#     Z_score_test = Z_score_test_matrix.copy()
+#     Z_score_test.rename(columns = {'subject_id_test': 'participant_id'}, inplace=True)
+#     plot_and_compute_zcores_by_gender(Z_score_test, struct_var, roi_ids)
 
 ##########
 # Display plots of Rho and EV for validation set

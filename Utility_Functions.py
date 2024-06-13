@@ -12,6 +12,7 @@ import glob
 from pcntoolkit.util.utils import create_bspline_basis
 from matplotlib.colors import ListedColormap
 from scipy import stats
+import ast
 
 def makenewdir(path):
     isExist = os.path.exists(path)
@@ -293,3 +294,57 @@ def fit_regression_model_dummy_data(model_dir, dummy_cov_file_path_female, dummy
 
     return slope_f, intercept_f, slope_m, intercept_m
 
+def write_list_of_lists(data, file_path):
+    # Write the list of lists to a file using list comprehension
+    with open(file_path, 'w') as file:
+        file.writelines([' '.join(str(num) for num in sublist) + '\n' for sublist in data])
+
+def read_list_of_lists(file_path):
+    # Read a list of lists from file using list comprehension
+    read_data = []
+    with open(file_path, 'r') as file:
+        read_data = [[int(num) for num in line.split()] for line in file]
+    return read_data
+
+def plot_age_acceleration(working_dir, nbootstrap, mean_agediff_f, mean_agediff_m):
+    # Initialize an empty dictionary
+    ageacc_from_bootstraps = {}
+
+    # Open the file with bootstrap results for age acceleration for both genders for reading
+    with open(f"{working_dir}/ageacceleration_dictionary {nbootstrap} bootstraps.txt", 'r') as f:
+        # Iterate over each line in the file
+        for line in f:
+            # Split the line into key-value pairs using the colon (:) as the separator
+            key, value = line.strip().split(':')
+            # Convert the value to the appropriate data type if needed (e.g., float)
+            # Add the key-value pair to the dictionary
+            ageacc_from_bootstraps[key] = value
+
+    # Convert age acceleration dictionoary to series for each gender
+    female_acc = pd.Series(ast.literal_eval(ageacc_from_bootstraps['female']))
+    male_acc = pd.Series(ast.literal_eval(ageacc_from_bootstraps['male']))
+
+    # Sort the series
+    female_acc.sort_values(inplace=True)
+    female_acc.reset_index(inplace=True, drop=True)
+    male_acc.sort_values(inplace=True)
+    male_acc.reset_index(inplace=True, drop=True)
+
+    female_CI = np.percentile(female_acc, (2.5, 97.5), method='closest_observation')
+    male_CI = np.percentile(male_acc, (2.5, 97.5), method='closest_observation')
+
+    # Plot mean age acceleration with confidence intervals for males and females on same plots
+    plt.figure(figsize=(4, 6))
+    plt.errorbar(0.4, mean_agediff_f,
+                 np.array(mean_agediff_f - female_CI[0], female_CI[1] - mean_agediff_f),
+                 color='green', marker='o')
+    plt.errorbar(0.2, mean_agediff_m,
+                 np.array(mean_agediff_m - male_CI[0], male_CI[1] - mean_agediff_m),
+                 color='blue', marker='o')
+
+    plt.xlim([0, 0.6])
+    plt.title('Age Acceleration By Sex\nwith 95% Confidence Interval')
+    plt.xlabel('Sex', fontsize=12)
+    plt.ylabel('Age Acceleration (years)', fontsize=12)
+    plt.xticks([0.2, 0.4], labels=['Male', 'Female'], fontsize=12)
+    plt.show(block=False)

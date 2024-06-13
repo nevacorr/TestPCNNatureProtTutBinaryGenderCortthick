@@ -15,9 +15,10 @@ from Utility_Functions import plot_data_with_spline, create_design_matrix, read_
 import shutil
 from normative_edited import predict
 from plot_and_compute_zdistributions import plot_and_compute_zcores_by_gender
+from fusiform_spline_plots import plot_data_with_spline_rh_fusiform
 
 struct_var = 'cortthick'
-show_nsubject_plots = 1
+show_nsubject_plots = 0
 show_plots = 0
 spline_order = 1
 spline_knots = 2
@@ -118,6 +119,11 @@ Z_time2 = pd.DataFrame()
 Z_time2['participant_id'] = all_data['participant_id'].copy()
 Z_time2.reset_index(inplace=True, drop = True)
 
+# Create dataframe to store variances
+variance_time2 = pd.DataFrame()
+variance_time2['participant_id'] = all_data['participant_id'].copy()
+variance_time2.reset_index(inplace=True, drop = True)
+
 ####Make Predictions of Brain Structural Measures Post-Covid based on Pre-Covid Normative Model
 
 #create design matrices for all regions and save files in respective directories
@@ -138,6 +144,8 @@ for roi in roi_ids:
     # make predictions
     yhat_te, s2_te, Z = predict(cov_file_te, respfile=resp_file_te, alg='blr', model_path=model_dir)
 
+    variance_time2[roi] = s2_te
+
     Z_time2[roi] = Z
 
     #create dummy design matrices
@@ -147,10 +155,18 @@ for roi in roi_ids:
     plot_data_with_spline('Postcovid (Test) Data ', struct_var, cov_file_te, resp_file_te, dummy_cov_file_path_female,
                               dummy_cov_file_path_male, model_dir, roi, show_plots, working_dir)
 
+    if roi == 'cortthick-rh-fusiform':
+        plot_data_with_spline_rh_fusiform('Post-Covid Subsample ', struct_var, cov_file_te, resp_file_te,
+                                          dummy_cov_file_path_female, dummy_cov_file_path_male, model_dir, roi,
+                                          show_plots, working_dir)
+
     mystop=1
 
 Z_time2.to_csv('{}/predict_files/{}/Z_scores_by_region_postcovid_testset_Final.txt'
                             .format(working_dir, struct_var), index=False)
+
+# write variance to file
+variance_time2.to_csv(f'{working_dir}/variance in predictions for post-covid data', index=False)
 
 plot_and_compute_zcores_by_gender(Z_time2, struct_var, roi_ids)
 plt.show()

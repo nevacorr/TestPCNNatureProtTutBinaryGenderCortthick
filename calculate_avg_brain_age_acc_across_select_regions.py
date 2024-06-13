@@ -3,16 +3,18 @@ import os
 import shutil
 from pcntoolkit.normative import estimate, evaluate, predict
 from Utility_Functions import create_design_matrix, plot_data_with_spline, create_dummy_design_matrix
-from Utility_Functions import plot_y_v_yhat, makenewdir, movefiles
+from Utility_Functions import plot_y_v_yhat, makenewdir, movefiles, write_list_of_lists, read_list_of_lists
 from normative_edited import predict
 from calculate_brain_age_acceleration import calculate_age_acceleration
 from plot_and_compute_zdistributions import plot_and_compute_zcores_by_gender
 import matplotlib.pyplot as plt
+import random
 from plot_num_subjs import plot_num_subjs
 from Load_Genz_Data import load_genz_data
 
-def calculate_avg_brain_age_acceleration_across_select_regions(desc_string, f_sigreg, m_sigreg, all_data, all_data_covariates, all_data_features,
-                                                               struct_var, show_plots, show_nsubject_plots, spline_order, spline_knots, filepath):
+def calculate_avg_brain_age_acceleration_make_model(desc_string, all_data, all_data_covariates, all_data_features,
+                                                               struct_var, show_plots, show_nsubject_plots,
+                                                               spline_order, spline_knots, filepath):
 
     makenewdir('{}/avgct_{}/'.format(filepath, desc_string))
     makenewdir('{}/avgct_{}/{}'.format(filepath, desc_string, struct_var))
@@ -116,95 +118,90 @@ def calculate_avg_brain_age_acceleration_across_select_regions(desc_string, f_si
                               dummy_cov_file_path_male, model_dir, roi, show_plots, filepath)
 
     plt.show()
+    return data_dir, agemin, agemax
 
+def calculate_avg_brain_age_acceleration_apply_model(roi_ids, desc_string, all_datav2, struct_var, show_plots, model_dir, spline_order,
+                                                     spline_knots, working_dir, agemin, agemax, num_permute, permute, shuffnum):
     #############################  Apply Normative Model to Post-COVID Data ####################
 
-    # specify visit number
-    visit = 2
-    # load all brain and behavior data for visit 2
-    brain_good, all_datav2, roi_ids = load_genz_data(struct_var, visit, filepath)
+    # create a shuffle stratified by age group
+    if permute and shuffnum == 0:
+        # for permutation testing
+        list_to_shuffle = all_datav2['sex'].to_list()
+        list_for_stratify = all_datav2['age']
+        unique_values = set(list_for_stratify)
+        # shuffle this list 100 times and save to list of lists
+        list_of_shuffled_sex = []
+        for _ in range(num_permute):
+            shuffled_sex = []
+            for value in unique_values:
+                indices = [i for i, v in enumerate(list_for_stratify) if v == value]
+                shuffled_indices = random.sample(indices, len(indices))
+                for index in shuffled_indices:
+                    shuffled_sex.append(list_to_shuffle[index])
+            list_of_shuffled_sex.append(shuffled_sex)
+            mystop = 1
+        # save list of lists to file
+        write_list_of_lists(list_of_shuffled_sex, f'{working_dir}/sexes_permuted.txt')
 
-    # replace gender with binary gender
-    all_datav2.loc[all_datav2['sex'] == 2, 'sex'] = 0
+    if permute:
+        list_of_shuffled_sex = read_list_of_lists(f'{working_dir}/sexes_permuted.txt')
+        shuffled_sex = list_of_shuffled_sex[shuffnum]
+
+        # Reorder the 'sex' column based on the new_order list
+        all_datav2.loc[:, 'sex'] = shuffled_sex
+
+    # Write number of each unique values to screen
+    for index, value in all_datav2['sex'].value_counts().items():
+        print(f'Number of values {index} is {value}')
+
+    # separate the brain features (response variables) and predictors (age, gender) in to separate dataframes
+    all_datav2_features = all_datav2.loc[:, roi_ids]
+    all_datav2_covariates = all_datav2[['agedays', 'sex']]
+
+    # average cortical thickness across all regions for each subject
+    all_datav2_features = all_datav2_features.mean(axis=1).to_frame()
+    all_datav2_features.rename(columns={0: 'avgcortthick'}, inplace=True)
 
     #make file diretories for output
-    makenewdir('{}/avgct_{}_predict_files/'.format(filepath, desc_string))
-    makenewdir('{}/avgct_{}_predict_files/{}'.format(filepath, desc_string, struct_var))
-    makenewdir('{}/avgct_{}_predict_files/{}/plots'.format(filepath, desc_string, struct_var))
-    makenewdir('{}/avgct_{}_predict_files/{}/ROI_models'.format(filepath, desc_string, struct_var))
-    makenewdir('{}/avgct_{}_predict_files/{}/covariate_files'.format(filepath, desc_string, struct_var))
-    makenewdir('{}/avgct_{}_predict_files/{}/response_files'.format(filepath, desc_string, struct_var))
-
-    fname = '{}/visit2_all_subjects_used_in_test_set_{}.txt'.format(filepath, struct_var)
-    my_file = open(fname, 'r')
-    test_subjects_txt = my_file.read()
-    test_subjects = test_subjects_txt.split("\n")
-    my_file.close()
-    while("" in test_subjects):
-        test_subjects.remove("")
-    test_subjects = [int(i) for i in test_subjects]
-
-    all_datav2 = all_datav2[all_datav2['participant_id'].isin(test_subjects)]
-
-    #reset indices
-    all_datav2.reset_index(inplace=True, drop=True)
-
-    #show number of subjects by gender and age
-    if show_nsubject_plots:
-        plot_num_subjs(all_datav2, 'Subjects with Post-COVID Data\nEvaluated by Model\n'
-                       +' (Total N=' + str(all_datav2.shape[0]) + ')', struct_var, 'post-covid_allsubj', filepath)
-
-    #specify which columns of dataframe to use as covariates
-    X_test_v2 = all_datav2[['agedays', 'sex']]
-
-    #make a matrix of response variables, one for each brain region
-    y_test_v2 = all_datav2.loc[:, roi_ids]
-
-    if desc_string == 'allreg':
-        #average cortical thickness across all regions for each subject
-        y_test_v2 = y_test_v2.mean(axis=1).to_frame()
-        y_test_v2.rename(columns={0:'avgcortthick'},  inplace=True)
-    elif desc_string == 'f_regions':
-        y_test_v2 = y_test_v2[y_test_v2.columns.intersection(f_sigreg)]
-        y_test_v2 = y_test_v2.mean(axis=1).to_frame()
-        y_test_v2.rename(columns={0:'avgcortthick'}, inplace=True)
-    elif desc_string == 'm_regions':
-        y_test_v2 = y_test_v2[y_test_v2.columns.intersection(m_sigreg)]
-        y_test_v2 = y_test_v2.mean(axis=1).to_frame()
-        y_test_v2.rename(columns={0:'avgcortthick'}, inplace=True)
+    makenewdir('{}/avgct_{}_predict_files/'.format(working_dir, desc_string))
+    makenewdir('{}/avgct_{}_predict_files/{}'.format(working_dir, desc_string, struct_var))
+    makenewdir('{}/avgct_{}_predict_files/{}/plots'.format(working_dir, desc_string, struct_var))
+    makenewdir('{}/avgct_{}_predict_files/{}/ROI_models'.format(working_dir, desc_string, struct_var))
+    makenewdir('{}/avgct_{}_predict_files/{}/covariate_files'.format(working_dir, desc_string, struct_var))
+    makenewdir('{}/avgct_{}_predict_files/{}/response_files'.format(working_dir, desc_string, struct_var))
 
     roi_ids = ['avgcortthick']
 
     #specify paths
-    training_dir = data_dir
     out_dir = ('{}/avgct_{}_predict_files/{}/ROI_models/'
-               .format(filepath, desc_string, struct_var))
+               .format(working_dir, desc_string, struct_var))
     #  this path is where ROI_models folders are located
     predict_files_dir = ('{}/avgct_{}_predict_files/{}/ROI_models/'
-                .format(filepath, desc_string, struct_var))
+                .format(working_dir, desc_string, struct_var))
 
     ##########
     # Create output directories for each region and place covariate and response files for that region in  each directory
     ##########
-    for c in y_test_v2.columns:
-        y_test_v2[c].to_csv(f'{filepath}/resp_te_'+c+'.txt', header=False, index=False)
-        X_test_v2.to_csv(f'{filepath}/cov_te.txt', sep='\t', header=False, index=False)
-        y_test_v2.to_csv(f'{filepath}/resp_te.txt', sep='\t', header=False, index=False)
+    for c in all_datav2_features.columns:
+        all_datav2_features[c].to_csv(f'{working_dir}/resp_te_'+c+'.txt', header=False, index=False)
+        all_datav2_covariates.to_csv(f'{working_dir}/cov_te.txt', sep='\t', header=False, index=False)
+        all_datav2_features.to_csv(f'{working_dir}/resp_te.txt', sep='\t', header=False, index=False)
 
     for i in ['avgcortthick']:
         roidirname = ('{}/avgct_{}_predict_files/{}/ROI_models/{}'
-                      .format(filepath, desc_string, struct_var, i))
+                      .format(working_dir, desc_string, struct_var, i))
         makenewdir(roidirname)
-        resp_te_filename = "{}/resp_te_{}.txt".format(filepath, i)
+        resp_te_filename = "{}/resp_te_{}.txt".format(working_dir, i)
         resp_te_filepath = roidirname + '/resp_te.txt'
         shutil.copyfile(resp_te_filename, resp_te_filepath)
         cov_te_filepath = roidirname + '/cov_te.txt'
-        shutil.copyfile(f"{filepath}/cov_te.txt", cov_te_filepath)
+        shutil.copyfile(f"{working_dir}/cov_te.txt", cov_te_filepath)
 
     movefiles("{}/resp_*.txt", "{}/avgct_{}_predict_files/{}/response_files/"
-              .format(filepath, filepath, desc_string, struct_var))
+              .format(working_dir, working_dir, desc_string, struct_var))
     movefiles("{}/cov_t*.txt", "{}/avgct_{}_predict_files/{}/covariate_files/"
-              .format(filepath, filepath, desc_string, struct_var))
+              .format(working_dir, working_dir, desc_string, struct_var))
 
     # Create Design Matrix and add in spline basis and intercept
     create_design_matrix('test', agemin, agemax, spline_order, spline_knots, roi_ids, out_dir)
@@ -219,13 +216,10 @@ def calculate_avg_brain_age_acceleration_across_select_regions(desc_string, f_si
     #create design matrices for all regions and save files in respective directories
     create_design_matrix('test', agemin, agemax, spline_order, spline_knots, roi_ids, predict_files_dir)
 
-    agediff_female = []
-    agediff_male = []
-
     for roi in roi_ids:
         print('Running ROI:', roi)
         roi_dir=os.path.join(predict_files_dir, roi)
-        model_dir = os.path.join(training_dir, roi, 'Models')
+        model_dir = os.path.join(model_dir, roi, 'Models')
         os.chdir(roi_dir)
 
         # configure the covariates to use.
@@ -241,21 +235,23 @@ def calculate_avg_brain_age_acceleration_across_select_regions(desc_string, f_si
 
         #create dummy design matrices
         dummy_cov_file_path_female, dummy_cov_file_path_male = \
-            create_dummy_design_matrix(struct_var, agemin, agemax, cov_file_te, spline_order, spline_knots, filepath)
+            create_dummy_design_matrix(struct_var, agemin, agemax, cov_file_te, spline_order, spline_knots, working_dir)
 
         #calculate brain age acceleration for each region
         mean_agediff_f, mean_agediff_m = calculate_age_acceleration(struct_var, roi_dir, yhat_te, model_dir, roi,
-                                                                    dummy_cov_file_path_female, dummy_cov_file_path_male)
-        agediff_female.append(mean_agediff_f)
-        agediff_male.append(mean_agediff_m)
+                                                        dummy_cov_file_path_female, dummy_cov_file_path_male, plotgap=1)
+
+
+    if not permute:
 
         plot_data_with_spline('Postcovid (Test) Data ', struct_var, cov_file_te, resp_file_te, dummy_cov_file_path_female,
-                                  dummy_cov_file_path_male, model_dir, roi, show_plots, filepath)
+                                  dummy_cov_file_path_male, model_dir, roi, show_plots, working_dir)
 
-    Z_time2.to_csv('{}/avgct_{}_predict_files/{}/Z_scores_by_region_postcovid_testset_avgct.txt'
-                                .format(filepath, desc_string, struct_var), index=False)
+        Z_time2.to_csv('{}/avgct_{}_predict_files/{}/Z_scores_by_region_postcovid_testset_avgct.txt'
+                                .format(working_dir, desc_string, struct_var), index=False)
 
-    plot_and_compute_zcores_by_gender(Z_time2, struct_var, roi_ids)
-    plt.show()
 
-    return agediff_female, agediff_male
+        plot_and_compute_zcores_by_gender(Z_time2, struct_var, roi_ids)
+        plt.show()
+
+    return mean_agediff_f, mean_agediff_m

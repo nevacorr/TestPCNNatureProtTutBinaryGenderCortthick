@@ -4,13 +4,16 @@
 ######
 
 import numpy as np
+import pandas as pd
+from scipy.stats import sem
 import os
 from Utility_Functions import fit_regression_model_dummy_data
+from matplotlib import pyplot as plt
 
 days_to_years_factor=365.25
 
 def calculate_age_acceleration(struct_var, roi_dir, yhat, model_dir, roi,
-                               dummy_cov_file_path_female, dummy_cov_file_path_male):
+                               dummy_cov_file_path_female, dummy_cov_file_path_male, plotgap):
 
     #load age and gender (predictors)
     predictors = np.loadtxt(os.path.join(roi_dir, 'cov_te.txt'))
@@ -47,6 +50,43 @@ def calculate_age_acceleration(struct_var, roi_dir, yhat, model_dir, roi,
 
     avg_actual_age_f = np.mean(actual_age_f)/days_to_years_factor
     avg_actual_age_m = np.mean(actual_age_m)/days_to_years_factor
+
+    if plotgap:
+        age_gap_f =(predicted_age_f - actual_age_f)/days_to_years_factor
+        age_gap_m =(predicted_age_m - actual_age_m)/days_to_years_factor
+
+        age_gap_df_f = pd.DataFrame()
+        age_gap_df_m = pd.DataFrame()
+        age_gap_df_f['actual_age']=actual_age_f/days_to_years_factor
+        age_gap_df_m['actual_age']=actual_age_m/days_to_years_factor
+        age_gap_df_f['age_gap'] = age_gap_f
+        age_gap_df_m['age_gap'] = age_gap_m
+        age_gap_df_f['actual_age_int'] = np.floor(age_gap_df_f['actual_age'].astype('int'))
+        age_gap_df_m['actual_age_int'] = np.floor(age_gap_df_m['actual_age'].astype('int'))
+
+        mean_vals_f = age_gap_df_f.groupby('actual_age_int')[['actual_age', 'age_gap']].mean().reset_index()
+        mean_vals_m = age_gap_df_m.groupby('actual_age_int')[['actual_age', 'age_gap']].mean().reset_index()
+        sem_vals_f = age_gap_df_f.groupby('actual_age_int')[['actual_age', 'age_gap']].sem().reset_index()
+        sem_vals_m = age_gap_df_m.groupby('actual_age_int')[['actual_age', 'age_gap']].sem().reset_index()
+
+        # Plot mean actual age with error bars for females
+        plt.errorbar(mean_vals_f['actual_age_int'], mean_vals_f['age_gap'], yerr=sem_vals_f['age_gap'], color='g',fmt='o',
+                     capsize=5, label='female')
+
+        # Plot mean actual age with error bars for males
+        plt.errorbar(mean_vals_m['actual_age_int'] + 0.1, mean_vals_m['age_gap'], yerr=sem_vals_m['age_gap'], color='b', fmt='o',
+                     capsize=5, label='male')
+
+        plt.xlabel('Actual Age (years)')
+        plt.ylabel('Age Gap (years)')
+        plt.title('Mean Age Gap by Age Group and Gender')
+        plt.legend()
+        plt.show()
+
+        # plt.scatter(mean_vals_f.loc[:,'actual_age'], mean_vals_f.loc[:,'age_gap'], c='green')
+        # plt.scatter(mean_vals_m.loc[:,'actual_age'], mean_vals_m.loc[:,'age_gap'], c='blue')
+        # plt.legend(['female, male'])
+        # plt.show()
 
     #subtract mean average age from mean predicted age for each age group
     mean_agediff_f = np.mean(np.subtract(predicted_age_f, actual_age_f))/days_to_years_factor
