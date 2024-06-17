@@ -83,6 +83,7 @@ for ax in [0, 1]:
 
     axs[ax].set_xticks(range(len(mean_female)), mean_female.index, rotation=90, fontsize=11)
     axs[ax].set_xlim(-0.8, len(mean_female) - 0.5)
+    axs[ax].set_ylim(-1.8, 0.9)
     axs[ax].axhline(y=0, linestyle='--', color='gray')
     axs[ax].tick_params(axis='y', labelsize=10)
 
