@@ -64,7 +64,7 @@ upper_ci_male = Z2_stats.loc['upper_CI_male']
 lower_ci_male = Z2_stats.loc['lower_CI_male']
 
 # Plotting
-fig, axs = plt.subplots(2, figsize=(12, 20), constrained_layout=True)
+fig, axs = plt.subplots(2, figsize=(14, 18), constrained_layout=True)
 
 # Plotting mean values with error bars for males
 axs[0].errorbar(x=range(len(mean_male)), y=mean_male, yerr=[mean_male - lower_ci_male,
@@ -85,6 +85,7 @@ for ax in [0, 1]:
     axs[ax].set_xlim(-0.8, len(mean_female) - 0.5)
     axs[ax].axhline(y=0, linestyle='--', color='gray')
 
+plt.savefig(f'{working_dir}/MeanZscore with Confidence Intervals for both genders.png')
 plt.show()
-plt.savefig(f'{working_dir} MeanZscore with Confidence Intervals for both genders')
+
 
