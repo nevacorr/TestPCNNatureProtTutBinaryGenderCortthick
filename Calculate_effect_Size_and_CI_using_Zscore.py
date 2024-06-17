@@ -96,15 +96,15 @@ plt.show()
 
 # Plot Cohen's d
 fig, axs =plt.subplots(2, constrained_layout=True, figsize=(14, 18),)
-axs[0].plot(cohensd_male, marker='o', color='g', linestyle='None')
-axs[1].plot(cohensd_female, marker='o', color='b', linestyle='None')
+axs[0].plot(cohensd_male, marker='o', color='b', linestyle='None')
+axs[1].plot(cohensd_female, marker='o', color='g', linestyle='None')
 for ax in [0, 1]:
-    axs[ax].set_ylabel("Cohen's d", fontsize=12)
+    axs[ax].set_ylabel("Effect Size", fontsize=12)
     if ax == 0:
         gender = 'Males'
     else:
         gender = 'Females'
-    axs[ax].set_title(f"{gender}: Cohen's D by Brain Region ")
+    axs[ax].set_title(f"{gender}: Effect Size by Brain Region ")
     axs[ax].set_xticks(range(len(mean_female)), mean_female.index, rotation=90, fontsize=11)
     axs[ax].set_xlim(-0.8, len(mean_female) - 0.5)
     axs[ax].set_ylim(-1.2, 0.5)
