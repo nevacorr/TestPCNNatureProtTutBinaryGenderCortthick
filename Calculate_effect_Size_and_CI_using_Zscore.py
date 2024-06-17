@@ -86,4 +86,5 @@ for ax in [0, 1]:
     axs[ax].axhline(y=0, linestyle='--', color='gray')
 
 plt.show()
+plt.savefig(f'{working_dir} MeanZscore with Confidence Intervals for both genders')
 
