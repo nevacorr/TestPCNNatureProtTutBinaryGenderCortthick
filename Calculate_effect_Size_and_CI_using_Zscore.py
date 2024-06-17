@@ -74,19 +74,19 @@ axs[0].errorbar(x=range(len(mean_male)), y=mean_male, yerr=[mean_male - lower_ci
 axs[1].errorbar(x=range(len(mean_female)), y=mean_female, yerr=[mean_female - lower_ci_female,
                                                 upper_ci_female - mean_female], fmt='o', label='Female', color='green', markersize=3)
 for ax in [0, 1]:
-    axs[ax].set_ylabel('Z score', fontsize=12)
+    axs[ax].set_ylabel('Z-score', fontsize=12)
     if ax == 0:
         gender = 'Males'
     else:
         gender = 'Females'
-    axs[ax].set_title(f'{gender}: Mean Z score with Confidence Intervals by Brain Region ')
+    axs[ax].set_title(f'{gender}: Mean Z-score with Confidence Intervals by Brain Region ')
 
     axs[ax].set_xticks(range(len(mean_female)), mean_female.index, rotation=90, fontsize=11)
     axs[ax].set_xlim(-0.8, len(mean_female) - 0.5)
     axs[ax].axhline(y=0, linestyle='--', color='gray')
     axs[ax].tick_params(axis='y', labelsize=10)
 
-plt.savefig(f'{working_dir}/MeanZ score with Confidence Intervals for both genders.png')
+plt.savefig(f'{working_dir}/Mean Z-score with Confidence Intervals for both genders.png')
 plt.show()
 
 
