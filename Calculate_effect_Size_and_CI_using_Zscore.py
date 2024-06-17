@@ -74,7 +74,7 @@ axs[0].errorbar(x=range(len(mean_male)), y=mean_male, yerr=[mean_male - lower_ci
 axs[1].errorbar(x=range(len(mean_female)), y=mean_female, yerr=[mean_female - lower_ci_female,
                                                 upper_ci_female - mean_female], fmt='o', label='Female', color='green', markersize=3)
 for ax in [0, 1]:
-    axs[ax].set_ylabel('Z-score', fontsize=12)
+    axs[ax].set_ylabel('Mean Z-score', fontsize=12)
     if ax == 0:
         gender = 'Males'
     else:
