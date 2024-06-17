@@ -64,25 +64,26 @@ upper_ci_male = Z2_stats.loc['upper_CI_male']
 lower_ci_male = Z2_stats.loc['lower_CI_male']
 
 # Plotting
-plt.figure(figsize=(12, 8))
-
-# Plotting mean values with error bars for females
-plt.errorbar(x=range(len(mean_female)), y=mean_female, yerr=[mean_female - lower_ci_female,
-                                                upper_ci_female - mean_female], fmt='o', label='Female', color='green', markersize=3)
+fig, axs = plt.subplots(2, figsize=(12, 20), constrained_layout=True)
 
 # Plotting mean values with error bars for males
-xval = range(len(mean_male))
-xval_offset = [p - 0.25 for p in xval ]
-plt.errorbar(x=xval_offset, y=mean_male, yerr=[mean_male - lower_ci_male,
+axs[0].errorbar(x=range(len(mean_male)), y=mean_male, yerr=[mean_male - lower_ci_male,
                                                 upper_ci_male - mean_male], fmt='o', label='Male', color='blue', markersize=3)
 
-plt.xlabel('Brain Region')
-plt.ylabel('Mean Value')
-plt.title('Mean Zscore by Brain Region with Confidence Intervals')
-plt.legend(loc='lower right')
+# Plotting mean values with error bars for females
+axs[1].errorbar(x=range(len(mean_female)), y=mean_female, yerr=[mean_female - lower_ci_female,
+                                                upper_ci_female - mean_female], fmt='o', label='Female', color='green', markersize=3)
+for ax in [0, 1]:
+    axs[ax].set_ylabel('Zscore')
+    if ax == 0:
+        gender = 'Males'
+    else:
+        gender = 'Females'
+    axs[ax].set_title(f'{gender}: Mean Zscore with Confidence Intervals by Brain Region ')
 
-plt.xticks(range(len(mean_female)), mean_female.index, rotation=90)
-plt.xlim(-0.8, len(mean_female) - 0.5)
-plt.tight_layout()
+    axs[ax].set_xticks(range(len(mean_female)), mean_female.index, rotation=90)
+    axs[ax].set_xlim(-0.8, len(mean_female) - 0.5)
+    axs[ax].axhline(y=0, linestyle='--', color='gray')
+
 plt.show()
 

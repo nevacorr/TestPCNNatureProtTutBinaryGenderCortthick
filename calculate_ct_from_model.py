@@ -117,7 +117,7 @@ def apply_normmodel_postcovid(all_data, roi_ids, working_dir, struct_var, agemin
         mean_variance = effect_df.groupby('gender')['predictive_variance'].mean()
         mean_stdev = np.sqrt(mean_variance)
 
-        effect_size = Z*sqrt(s2_te)+yhat_te
+        effect_size = Z * np.sqrt(s2_te) + yhat_te
         effect_size_by_region.loc[:,roi] = effect_size
 
     return effect_size_by_region
