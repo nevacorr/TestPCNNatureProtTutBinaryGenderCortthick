@@ -52,6 +52,10 @@ Z2_stats.loc['upper_CI_male',:] = (
 Z2_stats.loc['lower_CI_male',:] = (
         Z2_stats.loc['mean_male',:] - 1.96 * Z2_stats.loc['std_male'] / math.sqrt(Z2_male.shape[0] - 1))
 
+# Calculate Cohen's d for effect size
+cohensd_female = Z2_stats.loc['mean_female']/Z2_stats.loc['std_female']
+cohensd_male = Z2_stats.loc['mean_male']/Z2_stats.loc['std_male']
+
 # Remove prefix from column names
 Z2_stats.columns = Z2_stats.columns.str.replace('cortthick-', '')
 
@@ -90,4 +94,20 @@ for ax in [0, 1]:
 plt.savefig(f'{working_dir}/Mean Z-score with Confidence Intervals for both genders.png')
 plt.show()
 
+# Plot Cohen's d
+fig, axs =plt.subplots(2, constrained_layout=True, figsize=(14, 18),)
+axs[0].plot(cohensd_male, marker='o', color='g', linestyle='None')
+axs[1].plot(cohensd_female, marker='o', color='b', linestyle='None')
+for ax in [0, 1]:
+    axs[ax].set_ylabel("Cohen's d", fontsize=12)
+    if ax == 0:
+        gender = 'Males'
+    else:
+        gender = 'Females'
+    axs[ax].set_title(f"{gender}: Cohen's D by Brain Region ")
+    axs[ax].set_xticks(range(len(mean_female)), mean_female.index, rotation=90, fontsize=11)
+    axs[ax].set_xlim(-0.8, len(mean_female) - 0.5)
+    axs[ax].set_ylim(-1.2, 0.5)
+    axs[ax].axhline(y=0.0, linestyle='--', color='gray')
 
+plt.show()
