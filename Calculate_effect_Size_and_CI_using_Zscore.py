@@ -53,8 +53,8 @@ Z2_stats.loc['lower_CI_male',:] = (
         Z2_stats.loc['mean_male',:] - 1.96 * Z2_stats.loc['std_male'] / math.sqrt(Z2_male.shape[0] - 1))
 
 # Calculate Cohen's d for effect size
-cohensd_female = Z2_stats.loc['mean_female']/Z2_stats.loc['std_female']
-cohensd_male = Z2_stats.loc['mean_male']/Z2_stats.loc['std_male']
+cohensd_female = Z2_stats.loc['mean_female']#/Z2_stats.loc['std_female']
+cohensd_male = Z2_stats.loc['mean_male']#/Z2_stats.loc['std_male']
 
 # Remove prefix from column names
 Z2_stats.columns = Z2_stats.columns.str.replace('cortthick-', '')
@@ -76,7 +76,7 @@ axs[0].errorbar(x=range(len(mean_male)), y=mean_male, yerr=[mean_male - lower_ci
 
 # Plotting mean values with error bars for females
 axs[1].errorbar(x=range(len(mean_female)), y=mean_female, yerr=[mean_female - lower_ci_female,
-                                                upper_ci_female - mean_female], fmt='o', label='Female', color='green', markersize=3)
+                                                upper_ci_female - mean_female], fmt='o', label='Female', color='crimson', markersize=3)
 for ax in [0, 1]:
     axs[ax].set_ylabel('Mean Z-score', fontsize=12)
     if ax == 0:
@@ -97,7 +97,7 @@ plt.show()
 # Plot Cohen's d
 fig, axs =plt.subplots(2, constrained_layout=True, figsize=(14, 18),)
 axs[0].plot(cohensd_male, marker='o', color='b', linestyle='None')
-axs[1].plot(cohensd_female, marker='o', color='g', linestyle='None')
+axs[1].plot(cohensd_female, marker='o', color='crimson', linestyle='None')
 for ax in [0, 1]:
     axs[ax].set_ylabel("Effect Size", fontsize=12)
     if ax == 0:
