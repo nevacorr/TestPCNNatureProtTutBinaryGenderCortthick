@@ -149,7 +149,7 @@ def plot_by_gender(struct_var, Z_female, Z_male, roi_ids, reject_f, reject_m, pv
 def one_plot(ax, ptitle, ptitleB, Z_male_region, Z_female_region, binedges, zlim, yeslegend, nokde):
     if nokde==1:
         ax.hist(Z_male_region, bins=binedges, label='male', alpha=0.4, color='b')
-        ax.hist(Z_female_region, bins=binedges, label='female', alpha=0.4, color='g')
+        ax.hist(Z_female_region, bins=binedges, label='female', alpha=0.4, color='crimson')
         ax.set_ylabel('Number of Subjects', fontsize=14)
     elif nokde==0:
         Z_male_df = pd.Series(Z_male_region, name='male').to_frame()
@@ -157,7 +157,7 @@ def one_plot(ax, ptitle, ptitleB, Z_male_region, Z_female_region, binedges, zlim
         Z_male_df.rename(columns={0: 'male'}, inplace=True)
         Z_female_df.rename(columns={0: 'female'}, inplace=True)
         sns.kdeplot(Z_male_region, ax=ax, color = 'b', bw_adjust=1, label='male')
-        sns.kdeplot(Z_female_region, ax=ax, color = 'g', bw_adjust=1, label='female')
+        sns.kdeplot(Z_female_region, ax=ax, color = 'crimson', bw_adjust=1, label='female')
         ax.set_ylabel('probability density', fontsize=12)
     ax.axvline(x=0, color='dimgray', linestyle='--')
     ax.set_xlim(-zlim, zlim)
