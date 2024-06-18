@@ -109,5 +109,5 @@ for ax in [0, 1]:
     axs[ax].set_xlim(-0.8, len(mean_female) - 0.5)
     axs[ax].set_ylim(-1.2, 0.5)
     axs[ax].axhline(y=0.0, linestyle='--', color='gray')
-
+plt.savefig(f'{working_dir}/Effect Size for both genders.png')
 plt.show()
