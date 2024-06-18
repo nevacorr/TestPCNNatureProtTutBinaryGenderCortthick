@@ -37,7 +37,7 @@ def plot_data_with_spline_rh_fusiform(datastr, struct_var, cov_file, resp_file, 
     df_estspline = df_estspline.drop(index=df_estspline.iloc[1998].name)
 
     fig=plt.figure()
-    colors = {1: 'blue', 0: 'green'}
+    colors = {1: 'blue', 0: 'crimson'}
     sns.lineplot(data=df_estspline, x='Age in Days', y=struct_var, hue='gender', palette=colors, legend=False)
     sns.scatterplot(data=df_origdata, x='Age in Days', y=struct_var, hue='gender', palette=colors)
     plt.legend(title='')
