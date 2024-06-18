@@ -148,8 +148,8 @@ def plot_by_gender(struct_var, Z_female, Z_male, roi_ids, reject_f, reject_m, pv
 
 def one_plot(ax, ptitle, ptitleB, Z_male_region, Z_female_region, binedges, zlim, yeslegend, nokde):
     if nokde==1:
-        ax.hist(Z_male_region, bins=binedges, label='male', alpha=0.4, color='b')
-        ax.hist(Z_female_region, bins=binedges, label='female', alpha=0.4, color='crimson')
+        ax.hist(Z_female_region, bins=binedges, label='female', alpha=1.0, color='crimson')
+        ax.hist(Z_male_region, bins=binedges, label='male', alpha=0.7, color='b')
         ax.set_ylabel('Number of Subjects', fontsize=14)
     elif nokde==0:
         Z_male_df = pd.Series(Z_male_region, name='male').to_frame()
