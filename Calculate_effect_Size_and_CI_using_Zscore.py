@@ -56,6 +56,11 @@ Z2_stats.loc['lower_CI_male',:] = (
 cohensd_female = Z2_stats.loc['mean_female']#/Z2_stats.loc['std_female']
 cohensd_male = Z2_stats.loc['mean_male']#/Z2_stats.loc['std_male']
 
+# Count cohen's d values above or equal to 0.5
+
+female_count_above_threshold = (cohensd_female <= -0.5).sum()
+male_count_above_threshold = (cohensd_male <= -0.5).sum()
+
 # Remove prefix from column names
 Z2_stats.columns = Z2_stats.columns.str.replace('cortthick-', '')
 
