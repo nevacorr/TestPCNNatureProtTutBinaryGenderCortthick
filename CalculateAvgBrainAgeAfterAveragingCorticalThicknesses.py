@@ -24,7 +24,7 @@ spline_knots = 2
 filepath = '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick'
 num_permute = 1000    #number of permutations to use in calculating signifiance of sex difference in age acceleration
 calc_age_acc_diff_permute = 0
-calc_CI_age_acc_bootstrap = 1
+calc_CI_age_acc_bootstrap = 0
 nbootstrap = 1000
 
 #turn off interactive mode, don't show plots unless plt.show() is specified
@@ -130,22 +130,22 @@ if calc_age_acc_diff_permute:
     # Save array to text file
     np.savetxt(f'{filepath}/sex acceleration distribution.txt', sex_age_diff_array)
 
-if calc_CI_age_acc_bootstrap:
+# if calc_CI_age_acc_bootstrap:
+#
+#     mean_agediff_boot_f, mean_agediff_boot_m = calculate_avg_brain_age_acceleration_apply_model_bootstrap(roi_ids, all_datav2, struct_var,
+#                                                        spline_order, spline_knots,
+#                                                        filepath, agemin, agemax, nbootstrap)
+#
+#     ageacc_from_bootstraps = {}
+#     ageacc_from_bootstraps['female'] = mean_agediff_boot_f
+#     ageacc_from_bootstraps['male'] = mean_agediff_boot_m
+#
+#     # Write age acceleration from bootstrapping to file
+#     with open(f"{filepath}/ageacceleration_dictionary {nbootstrap} bootstraps.txt", 'w') as f:
+#         for key, value in ageacc_from_bootstraps.items():
+#             f.write('%s:%s\n' % (key, value))
 
-    mean_agediff_boot_f, mean_agediff_boot_m = calculate_avg_brain_age_acceleration_apply_model_bootstrap(roi_ids, all_datav2, struct_var,
-                                                       spline_order, spline_knots,
-                                                       filepath, agemin, agemax, nbootstrap)
-
-    ageacc_from_bootstraps = {}
-    ageacc_from_bootstraps['female'] = mean_agediff_boot_f
-    ageacc_from_bootstraps['male'] = mean_agediff_boot_m
-
-    # Write age acceleration from bootstrapping to file
-    with open(f"{filepath}/ageacceleration_dictionary {nbootstrap} bootstraps.txt", 'w') as f:
-        for key, value in ageacc_from_bootstraps.items():
-            f.write('%s:%s\n' % (key, value))
-
-    plot_age_acceleration(filepath, nbootstrap, agediff_female, agediff_male)
+plot_age_acceleration(filepath, nbootstrap, agediff_female, agediff_male)
 
 
 

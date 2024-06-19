@@ -162,12 +162,17 @@ def one_plot(ax, ptitle, ptitleB, Z_male_region, Z_female_region, binedges, zlim
     ax.axvline(x=0, color='dimgray', linestyle='--')
     ax.set_xlim(-zlim, zlim)
     ax.set_xlabel('Z-score', fontsize=14)
-    plt.text(0.5, 1.08, ptitleB, fontsize=14, fontweight='bold', ha = 'center', va='bottom', transform=ax.transAxes)
+    plt.text(0.5, 1.12, ptitleB, fontsize=14, fontweight='bold', ha = 'center', va='bottom', transform=ax.transAxes)
     plt.text(0.5, 1.01, ptitle, fontsize=14, ha='center', va='bottom', transform=ax.transAxes)
     #ax.set_title(ptitle, fontsize=16)
     ax.tick_params(axis='both', which='major', labelsize=12)
     if yeslegend:
-        ax.legend(fontsize=14)
+        # Need to switch order in legend so males are listed first to be consistent with other plots in manuscript
+        # Get the handles and labels from the ax
+        handles, labels = ax.get_legend_handles_labels()
+        # Reorder the handles and labels
+        order = [1, 0]  # This assumes the 'female' is first and 'male' is second
+        ax.legend([handles[idx] for idx in order], [labels[idx] for idx in order], fontsize=14)
     # plt.tight_layout()
 
 def plot_separate_figures_sorted(df, Z_female, Z_male, binedges, zlim, struct_var,f, nokde):
@@ -201,8 +206,8 @@ def plot_separate_figures_sorted(df, Z_female, Z_male, binedges, zlim, struct_va
             elif region_for_title == 'lateraloccipital':
                 region_for_title = 'lateral occipital'
         bold_string = f'{hemi}{region_for_title}\n'
-        not_bold_string = (f'female mean = {zmean_f:.2} p = {df.loc[i, "pfemale"]:.2e}\n '
-                           f'male mean = {zmean_m:.2} p = {df.loc[i, "pmale"]:.2e}')
+        not_bold_string = (f'Female mean = {zmean_f:.2}, $\\it{{p}}$ = {df.loc[i, "pfemale"]:.2e}\n '
+                           f'Male mean = {zmean_m:.2}, $\\it{{p}}$ = {df.loc[i, "pmale"]:.2e}')
         bold_string_list.append(bold_string)
         sig_string_list.append(not_bold_string)
         #sig_string_list.append(f'{hemi}{region_for_title}\ncortical thickness')

@@ -337,7 +337,7 @@ def plot_age_acceleration(working_dir, nbootstrap, mean_agediff_f, mean_agediff_
     plt.figure(figsize=(4, 6))
     plt.errorbar(0.4, mean_agediff_f,
                  np.array(mean_agediff_f - female_CI[0], female_CI[1] - mean_agediff_f),
-                 color='green', marker='o')
+                 color='crimson', marker='o')
     plt.errorbar(0.2, mean_agediff_m,
                  np.array(mean_agediff_m - male_CI[0], male_CI[1] - mean_agediff_m),
                  color='blue', marker='o')
@@ -347,4 +347,6 @@ def plot_age_acceleration(working_dir, nbootstrap, mean_agediff_f, mean_agediff_
     plt.xlabel('Sex', fontsize=12)
     plt.ylabel('Age Acceleration (years)', fontsize=12)
     plt.xticks([0.2, 0.4], labels=['Male', 'Female'], fontsize=12)
-    plt.show(block=False)
+    # Add a gray dashed line at y=0
+    plt.axhline(y=0, color='gray', linestyle='--')
+    plt.show()
