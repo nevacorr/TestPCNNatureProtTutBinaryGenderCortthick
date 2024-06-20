@@ -150,10 +150,16 @@ for c in y_test.columns:
     y_test[c].to_csv('resp_te_'+c+'.txt', header=False, index=False)
     X_test.to_csv('cov_te.txt', sep='\t', header=False, index=False)
     y_test.to_csv('resp_te.txt', sep='\t', header=False, index=False)
+    if c == 'cortthick-rh-fusiform':
+        X_test.to_csv('cov_te_fusiform_validation.txt', sep='\t', header=False, index=False)
+        y_test.to_csv('resp_te_fusiform_validation.txt', sep='\t', header=False, index=False)
 
 for i in roi_ids:
     roidirname = 'data/{}/ROI_models/{}'.format(struct_var, i)
     makenewdir(roidirname)
+    if i == 'cortthick-rh-fusiform' and perform_train_test_split_precovid == 1:
+        shutil.copyfile('cov_te.txt', roidirname + '/cov_te_fusiform_validation.txt')
+        shutil.copyfile(f'resp_te_{i}.txt', roidirname + '/resp_te_fusiform_validation.txt')
     resp_tr_filename = "resp_tr_{}.txt".format(i)
     resp_tr_filepath = roidirname + '/resp_tr.txt'
     shutil.copyfile(resp_tr_filename, resp_tr_filepath)
@@ -244,6 +250,11 @@ for roi in roi_ids:
         plot_data_with_spline_rh_fusiform('Pre-COVID Subsample ', struct_var, cov_file_tr, resp_file_tr,
                                           dummy_cov_file_path_female, dummy_cov_file_path_male, model_dir, roi,
                                           show_plots, working_dir)
+        tmp_cov_file_te = f'{data_dir}/{roi}/cov_te_fusiform_validation.txt'
+        tmp_resp_file_te = f'{data_dir}/{roi}/resp_te_fusiform_validation.txt'
+        plot_data_with_spline_rh_fusiform('Pre-COVID Subsample Not Used For Model ', struct_var, tmp_cov_file_te, tmp_resp_file_te,
+                                      dummy_cov_file_path_female, dummy_cov_file_path_male, model_dir, roi,
+                                      show_plots, working_dir)
 
     #add a row to the blr_metrics dataframe containing ROI, MSLL, EXPV, SMSE, RMSE, and Rho metrics
     blr_metrics.loc[len(blr_metrics)]=[roi, metrics_te['MSLL'][0],
