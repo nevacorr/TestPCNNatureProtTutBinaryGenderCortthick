@@ -83,12 +83,12 @@ axs[0].errorbar(x=range(len(mean_male)), y=mean_male, yerr=[mean_male - lower_ci
 axs[1].errorbar(x=range(len(mean_female)), y=mean_female, yerr=[mean_female - lower_ci_female,
                                                 upper_ci_female - mean_female], fmt='o', label='Female', color='crimson', markersize=3)
 for ax in [0, 1]:
-    axs[ax].set_ylabel('Mean Z-score', fontsize=12)
+    axs[ax].set_ylabel('Mean Effect Size', fontsize=12)
     if ax == 0:
         gender = 'Males'
     else:
         gender = 'Females'
-    axs[ax].set_title(f'{gender}: Mean Z-score with Confidence Intervals by Brain Region ')
+    # axs[ax].set_title(f'{gender}: Mean Z-score with Confidence Intervals by Brain Region ')
 
     axs[ax].set_xticks(range(len(mean_female)), mean_female.index, rotation=90, fontsize=11)
     axs[ax].set_xlim(-0.8, len(mean_female) - 0.5)
@@ -96,7 +96,7 @@ for ax in [0, 1]:
     axs[ax].axhline(y=0, linestyle='--', color='gray')
     axs[ax].tick_params(axis='y', labelsize=10)
 
-plt.savefig(f'{working_dir}/Mean Z-score with Confidence Intervals for both genders.png')
+plt.savefig(f'{working_dir}/Mean Effect Size with Confidence Intervals for both genders.png')
 plt.show()
 
 # Plot Cohen's d
@@ -109,10 +109,10 @@ for ax in [0, 1]:
         gender = 'Males'
     else:
         gender = 'Females'
-    axs[ax].set_title(f"{gender}: Effect Size by Brain Region", fontsize=16)
+    # axs[ax].set_title(f"{gender}: Effect Size by Brain Region", fontsize=16)
     axs[ax].set_xticks(range(len(mean_female)), mean_female.index, rotation=90, fontsize=14)
     axs[ax].set_xlim(-0.8, len(mean_female) - 0.5)
     axs[ax].set_ylim(-1.2, 0.5)
     axs[ax].axhline(y=0.0, linestyle='--', color='gray')
-plt.savefig(f'{working_dir}/Effect Size for both genders.png')
+plt.savefig(f'{working_dir}/Effect Size for both genders no CI.png')
 plt.show()
