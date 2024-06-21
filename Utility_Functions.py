@@ -124,7 +124,7 @@ def plot_data_with_spline(datastr, struct_var, cov_file, resp_file, dummy_cov_fi
     df_estspline = df_estspline.drop(index=df_estspline.iloc[1998].name)
 
     fig=plt.figure()
-    colors = {1: 'blue', 0: 'green'}
+    colors = {1: 'blue', 0: 'crimson'}
     sns.lineplot(data=df_estspline, x='Age in Days', y=struct_var, hue='gender', palette=colors, legend=False)
     sns.scatterplot(data=df_origdata, x='Age in Days', y=struct_var, hue='gender', palette=colors)
     plt.legend(title='')
@@ -160,7 +160,7 @@ def plot_y_v_yhat(cov_file, resp_file, yhat, typestring, struct_var, roi, Rho, E
     dfp['yhat'] = yhat
     print(dfp.dtypes)
     fig = plt.figure()
-    colors = {1: 'blue', 0: 'green'}
+    colors = {1: 'blue', 0: 'crimson'}
     sns.scatterplot(data=dfp, x='y', y='yhat', hue='gender', palette=colors)
     ax = plt.gca()
     fig.subplots_adjust(right=0.82)
@@ -175,7 +175,7 @@ def plot_y_v_yhat(cov_file, resp_file, yhat, typestring, struct_var, roi, Rho, E
     plt.show(block=False)
 
 def barplot_performance_values(struct_var, metric, df, spline_order, spline_knots, datastr, path):
-    colors = ['blue' if 'lh' in x else 'green' for x in df.ROI]
+    colors = ['blue' if 'lh' in x else 'crimson' for x in df.ROI]
     fig, ax = plt.subplots(figsize=(8, 10))
     sns.barplot(x=df[metric], y=df['ROI'], orient='h', palette=colors)
     plt.subplots_adjust(left=0.4)
