@@ -157,7 +157,7 @@ for roi in roi_ids:
                               dummy_cov_file_path_male, model_dir, roi, show_plots, working_dir)
 
     if roi == 'cortthick-rh-fusiform':
-        plot_data_with_spline_rh_fusiform('Post-Covid Subsample ', orig_struct_var, cov_file_te, resp_file_te,
+        plot_data_with_spline_rh_fusiform('precovid data for Post-Covid Subsample ', orig_struct_var, cov_file_te, resp_file_te,
                                           dummy_cov_file_path_female, dummy_cov_file_path_male, model_dir, roi,
                                           show_plots, working_dir)
 
