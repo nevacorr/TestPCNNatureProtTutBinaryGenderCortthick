@@ -29,7 +29,7 @@ show_plots = 0  #set to 1 to show training and test data ymvs yhat and spline fi
 show_nsubject_plots = 0 #set to 1 to plot number of subjects used in analysis, for each age and gender
 spline_order = 1 # order of spline to use for model
 spline_knots = 2 # number of knots in spline to use in model
-perform_train_test_split_precovid = 0  # flag indicating whether to split training set (pre-covid data) into train and
+perform_train_test_split_precovid = 1  # flag indicating whether to split training set (pre-covid data) into train and
                                        # validations (test) sets. If this is set to 0, the entire training set is used
                                        # for the model and there is no validation set. Regardless of the value of this
                                        # flag, no post-covid data is used in creating or evaluating the normative model.
@@ -107,8 +107,8 @@ all_data_covariates = all_data[['age', 'agedays', 'sex']]
 if perform_train_test_split_precovid:
 #Split training set into training and validation sets. Training set will be used to create models. Performance will be
 # evaluated on the validation set. When performing train-test split, stratify by age and gender
-    X_train, X_test, y_train, y_test=train_test_split(all_data_covariates, all_data_features,
-                                                      stratify=all_data[['age', 'sex']], test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(all_data_covariates, all_data_features,
+                                                    stratify=all_data[['age', 'sex']], test_size=0.2, random_state=1)
 else:
 #use entire training set to create models
     X_train = all_data_covariates.copy()
