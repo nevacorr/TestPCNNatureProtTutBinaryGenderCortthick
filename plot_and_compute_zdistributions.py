@@ -162,7 +162,10 @@ def one_plot(ax, ptitle, ptitleB, Z_male_region, Z_female_region, binedges, zlim
     ax.axvline(x=0, color='dimgray', linestyle='--')
     ax.set_xlim(-zlim, zlim)
     ax.set_xlabel('Z-score', fontsize=14)
-    plt.text(0.5, 1.12, ptitleB, fontsize=14, fontweight='bold', ha = 'center', va='bottom', transform=ax.transAxes)
+    if 'caudal anterior cingulate' in ptitleB:
+        plt.text(0.5, 1.12, ptitleB, fontsize=12, fontweight='bold', ha='center', va='bottom', transform=ax.transAxes)
+    else:
+        plt.text(0.5, 1.12, ptitleB, fontsize=14, fontweight='bold', ha = 'center', va='bottom', transform=ax.transAxes)
     plt.text(0.5, 1.01, ptitle, fontsize=14, ha='center', va='bottom', transform=ax.transAxes)
     #ax.set_title(ptitle, fontsize=16)
     ax.tick_params(axis='both', which='major', labelsize=12)
@@ -294,7 +297,7 @@ def plot_separate_figures_sorted(df, Z_female, Z_male, binedges, zlim, struct_va
                 .format(struct_var, figstr, f'fig{fignum}'))
             fignum += 1
 
-        if i == df.shape[0]-1:
+        if i == df.shape[0]-1 and a != 0:
             plt.savefig(
                 '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick/data/{}/plots/{}_{}'
                 .format(struct_var, figstr, f'fig{fignum}'))
