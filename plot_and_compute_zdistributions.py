@@ -146,7 +146,7 @@ def plot_by_gender(struct_var, Z_female, Z_male, roi_ids, reject_f, reject_m, pv
             mystop = 1
     plt.show()
 
-def one_plot(ax, ptitle, ptitleB, Z_male_region, Z_female_region, binedges, zlim, yeslegend, nokde):
+def one_plot(ax, ptitle, ptitleB, Z_male_region, Z_female_region, binedges, zlim, nokde):
     if nokde==1:
         ax.hist(Z_female_region, bins=binedges, label='female', alpha=1.0, color='crimson')
         ax.hist(Z_male_region, bins=binedges, label='male', alpha=0.7, color='b')
@@ -166,13 +166,12 @@ def one_plot(ax, ptitle, ptitleB, Z_male_region, Z_female_region, binedges, zlim
     plt.text(0.5, 1.01, ptitle, fontsize=14, ha='center', va='bottom', transform=ax.transAxes)
     #ax.set_title(ptitle, fontsize=16)
     ax.tick_params(axis='both', which='major', labelsize=12)
-    if yeslegend:
-        # Need to switch order in legend so males are listed first to be consistent with other plots in manuscript
-        # Get the handles and labels from the ax
-        handles, labels = ax.get_legend_handles_labels()
-        # Reorder the handles and labels
-        order = [1, 0]  # This assumes the 'female' is first and 'male' is second
-        ax.legend([handles[idx] for idx in order], [labels[idx] for idx in order], fontsize=12)
+    # Need to switch order in legend so males are listed first to be consistent with other plots in manuscript
+    # Get the handles and labels from the ax
+    handles, labels = ax.get_legend_handles_labels()
+    # Reorder the handles and labels
+    order = [1, 0]  # This assumes the 'female' is first and 'male' is second
+    ax.legend([handles[idx] for idx in order], [labels[idx] for idx in order], fontsize=10)
     # plt.tight_layout()
 
 def plot_separate_figures_sorted(df, Z_female, Z_male, binedges, zlim, struct_var,f, nokde):
@@ -205,6 +204,47 @@ def plot_separate_figures_sorted(df, Z_female, Z_male, binedges, zlim, struct_va
                 region_for_title = 'superior temporal'
             elif region_for_title == 'lateraloccipital':
                 region_for_title = 'lateral occipital'
+            elif region_for_title == 'middletemporal':
+                region_for_title = 'middle temporal'
+            elif region_for_title == 'lateralorbitofrontal':
+                region_for_title = 'lateral orbitofrontal'
+            elif region_for_title == 'transversetemporal':
+                region_for_title = 'transverse temporal'
+            elif region_for_title == 'superiorfrontal':
+                region_for_title = 'superior frontal'
+            elif region_for_title == 'temporalpole':
+                region_for_title = 'temporal pole'
+            elif region_for_title == 'caudalmiddlefrontal':
+                region_for_title = 'caudal middle frontal'
+            elif region_for_title == 'inferiortemporal':
+                region_for_title = 'inferior temporal'
+            elif region_for_title == 'parsopercularis':
+                region_for_title = 'pars opercularis'
+            elif region_for_title == 'parsorbitalis':
+                region_for_title = 'pars orbitalis'
+            elif region_for_title == 'inferiorparietal':
+                region_for_title = 'inferior parietal'
+            elif region_for_title == 'rostralmiddlefrontal':
+                region_for_title = 'rostral middle frontal'
+            elif region_for_title == 'superiorfrontal':
+                region_for_title = 'superior frontal'
+            elif region_for_title == 'rostralanteriorcingulate':
+                region_for_title = 'rostral anterior cingulate'
+            elif region_for_title == 'superiorparietal':
+                region_for_title = 'superior parietal'
+            elif region_for_title == 'transversetemporal':
+                region_for_title = 'transverse temporal'
+            elif region_for_title == 'caudalanteriorcingulate':
+                region_for_title = 'caudal anterior cingulate'
+            elif region_for_title == 'parstriangularis':
+                region_for_title = 'pars triangularis'
+            elif region_for_title == 'medialorbitofrontal':
+                region_for_title = 'medial orbitofrontal'
+            elif region_for_title == 'posteriorcingulate':
+                region_for_title = 'posterior cingulate'
+            elif region_for_title == 'isthmuscingulate':
+                region_for_title = 'isthmus cingulate'
+
         bold_string = f'{hemi}{region_for_title}\n'
         not_bold_string = (f'Female mean = {zmean_f:.2}, $\\it{{p}}$ = {df.loc[i, "pfemale"]:.2e}\n '
                            f'Male mean = {zmean_m:.2}, $\\it{{p}}$ = {df.loc[i, "pmale"]:.2e}')
@@ -215,12 +255,12 @@ def plot_separate_figures_sorted(df, Z_female, Z_male, binedges, zlim, struct_va
     fignum = f
     for i, region in enumerate(df['roi_ids']):
         a = (i + 1) % 6
-        if (df.shape[0] <30 ) & (i == df.shape[0]-1):
-            yeslegend = 1
-        elif a == 3:
-            yeslegend = 1
-        else:
-            yeslegend = 0
+        # if (df.shape[0] <30 ) & (i == df.shape[0]-1):
+        #     yeslegend = 1
+        # elif a == 3:
+        #     yeslegend = 1
+        # else:
+        #     yeslegend = 0
 
         if a == 1:
             ptitleB = f'{bold_string_list[i]}'
@@ -228,27 +268,27 @@ def plot_separate_figures_sorted(df, Z_female, Z_male, binedges, zlim, struct_va
             fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(nrows=2, ncols=3)
             fig.set_size_inches(13.5, 10)
             fig.subplots_adjust(hspace=0.5, wspace=0.3, left=0.05, right=0.95)
-            one_plot(ax1, ptitle, ptitleB, Z_male[region], Z_female[region], binedges, zlim, yeslegend, nokde)
+            one_plot(ax1, ptitle, ptitleB, Z_male[region], Z_female[region], binedges, zlim, nokde)
         elif a == 2:
             ptitle = f'{sig_string_list[i]}'
             ptitleB = f'{bold_string_list[i]}'
-            one_plot(ax2, ptitle, ptitleB, Z_male[region], Z_female[region], binedges, zlim, yeslegend, nokde)
+            one_plot(ax2, ptitle, ptitleB, Z_male[region], Z_female[region], binedges, zlim, nokde)
         elif a == 3:
             ptitle = f'{sig_string_list[i]}'
             ptitleB = f'{bold_string_list[i]}'
-            one_plot(ax3, ptitle, ptitleB, Z_male[region], Z_female[region], binedges, zlim, yeslegend, nokde)
+            one_plot(ax3, ptitle, ptitleB, Z_male[region], Z_female[region], binedges, zlim, nokde)
         elif a % 6 == 4:
             ptitle = f'{sig_string_list[i]}'
             ptitleB = f'{bold_string_list[i]}'
-            one_plot(ax4, ptitle, ptitleB, Z_male[region], Z_female[region], binedges, zlim, yeslegend, nokde)
+            one_plot(ax4, ptitle, ptitleB, Z_male[region], Z_female[region], binedges, zlim, nokde)
         elif a % 6 == 5:
             ptitle = f'{sig_string_list[i]}'
             ptitleB = f'{bold_string_list[i]}'
-            one_plot(ax5, ptitle, ptitleB, Z_male[region], Z_female[region], binedges, zlim, yeslegend, nokde)
+            one_plot(ax5, ptitle, ptitleB, Z_male[region], Z_female[region], binedges, zlim, nokde)
         elif a % 6 == 0:
             ptitle = f'{sig_string_list[i]}'
             ptitleB = f'{bold_string_list[i]}'
-            one_plot(ax6, ptitle, ptitleB, Z_male[region], Z_female[region], binedges, zlim, yeslegend, nokde)
+            one_plot(ax6, ptitle, ptitleB, Z_male[region], Z_female[region], binedges, zlim, nokde)
             plt.savefig(
                 '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick/data/{}/plots/{}_{}'
                 .format(struct_var, figstr, f'fig{fignum}'))
