@@ -172,7 +172,7 @@ def one_plot(ax, ptitle, ptitleB, Z_male_region, Z_female_region, binedges, zlim
         handles, labels = ax.get_legend_handles_labels()
         # Reorder the handles and labels
         order = [1, 0]  # This assumes the 'female' is first and 'male' is second
-        ax.legend([handles[idx] for idx in order], [labels[idx] for idx in order], fontsize=14)
+        ax.legend([handles[idx] for idx in order], [labels[idx] for idx in order], fontsize=12)
     # plt.tight_layout()
 
 def plot_separate_figures_sorted(df, Z_female, Z_male, binedges, zlim, struct_var,f, nokde):
