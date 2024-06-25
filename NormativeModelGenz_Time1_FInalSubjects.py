@@ -127,6 +127,10 @@ s_index_train = X_train.index.values
 s_index_test = X_test.index.values
 subjects_train = all_data.loc[s_index_train, 'participant_id'].values
 subjects_test = all_data.loc[s_index_test, 'participant_id'].values
+subjects_train_df = pd.DataFrame(subjects_train)
+subjects_train_df.to_csv(f'{working_dir}/train_subjects_excludes_validation.csv', index=False, header=False)
+subjects_test_df = pd.DataFrame(subjects_test)
+subjects_test_df.to_csv(f'{working_dir}/validation_subjects.csv', index=False, header=False)
 
 # drop the age column from the train and validation data sets because we want to use agedays as a predictor
 X_train.drop(columns=['age'], inplace=True)

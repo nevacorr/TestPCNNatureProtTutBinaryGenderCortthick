@@ -334,12 +334,15 @@ def plot_age_acceleration(working_dir, nbootstrap, mean_agediff_f, mean_agediff_
     male_CI = np.percentile(male_acc, (2.5, 97.5), method='closest_observation')
 
     # Plot mean age acceleration with confidence intervals for males and females on same plots
+    female_errors = (mean_agediff_f - female_CI[0], female_CI[1]-mean_agediff_f)
+    male_errors = (mean_agediff_m - male_CI[0], male_CI[1] - mean_agediff_m)
+
     plt.figure(figsize=(4, 6))
     plt.errorbar(0.4, mean_agediff_f,
-                 np.array(mean_agediff_f - female_CI[0], female_CI[1] - mean_agediff_f),
+                 yerr=[[female_errors[0]], [female_errors[1]]],
                  color='crimson', marker='o')
     plt.errorbar(0.2, mean_agediff_m,
-                 np.array(mean_agediff_m - male_CI[0], male_CI[1] - mean_agediff_m),
+                 yerr=[[male_errors[0]], [male_errors[1]]],
                  color='blue', marker='o')
 
     plt.xlim([0, 0.6])

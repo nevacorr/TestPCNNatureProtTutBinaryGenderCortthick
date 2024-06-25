@@ -21,6 +21,7 @@ show_plots = 0  #set to 1 to show training and test data y vs yhat and spline fi
 show_nsubject_plots = 0 #set to 1 to show number of subjects in analysis
 spline_order = 1
 spline_knots = 2
+perform_train_test_split_precovid = 1  #flag indicating whether training set was split into train and validation set
 filepath = '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick'
 num_permute = 1000    #number of permutations to use in calculating signifiance of sex difference in age acceleration
 calc_age_acc_diff_permute = 0
@@ -55,10 +56,16 @@ if show_nsubject_plots:
 all_data = all_data.dropna()
 all_data.reset_index(inplace=True, drop=True)
 
+# If validation data was not used in
+if perform_train_test_split_precovid == 1:
+    fname_train = f'{filepath}/train_subjects_excludes_validation.csv'
+    subjects_train = pd.read_csv(fname_train, header=None)
+    subjects_train = subjects_train[0].tolist()
+    all_data = all_data[all_data['participant_id'].isin(subjects_train)]
+
 # separate the brain features (response variables) and predictors (age, gender) in to separate dataframes
 all_data_features_orig = all_data.loc[:,roi_ids]
 all_data_covariates = all_data[['age', 'agedays', 'sex']]
-
 
 # average cortical thickness across all regions for each subject
 all_data_features = all_data_features_orig.mean(axis=1).to_frame()
@@ -130,20 +137,20 @@ if calc_age_acc_diff_permute:
     # Save array to text file
     np.savetxt(f'{filepath}/sex acceleration distribution.txt', sex_age_diff_array)
 
-# if calc_CI_age_acc_bootstrap:
-#
-#     mean_agediff_boot_f, mean_agediff_boot_m = calculate_avg_brain_age_acceleration_apply_model_bootstrap(roi_ids, all_datav2, struct_var,
-#                                                        spline_order, spline_knots,
-#                                                        filepath, agemin, agemax, nbootstrap)
-#
-#     ageacc_from_bootstraps = {}
-#     ageacc_from_bootstraps['female'] = mean_agediff_boot_f
-#     ageacc_from_bootstraps['male'] = mean_agediff_boot_m
-#
-#     # Write age acceleration from bootstrapping to file
-#     with open(f"{filepath}/ageacceleration_dictionary {nbootstrap} bootstraps.txt", 'w') as f:
-#         for key, value in ageacc_from_bootstraps.items():
-#             f.write('%s:%s\n' % (key, value))
+if calc_CI_age_acc_bootstrap:
+
+    mean_agediff_boot_f, mean_agediff_boot_m = calculate_avg_brain_age_acceleration_apply_model_bootstrap(roi_ids, all_datav2, struct_var,
+                                                       spline_order, spline_knots,
+                                                       filepath, agemin, agemax, nbootstrap)
+
+    ageacc_from_bootstraps = {}
+    ageacc_from_bootstraps['female'] = mean_agediff_boot_f
+    ageacc_from_bootstraps['male'] = mean_agediff_boot_m
+
+    # Write age acceleration from bootstrapping to file
+    with open(f"{filepath}/ageacceleration_dictionary {nbootstrap} bootstraps.txt", 'w') as f:
+        for key, value in ageacc_from_bootstraps.items():
+            f.write('%s:%s\n' % (key, value))
 
 plot_age_acceleration(filepath, nbootstrap, agediff_female, agediff_male)
 
