@@ -113,7 +113,7 @@ for ax in [0, 1]:
     # axs[ax].set_title(f"{gender}: Effect Size by Brain Region", fontsize=16)
     axs[ax].set_xticks(range(len(mean_female)), mean_female.index, rotation=90, fontsize=14)
     axs[ax].set_xlim(-0.8, len(mean_female) - 0.5)
-    axs[ax].set_ylim(-1.2, 0.6)
+    axs[ax].set_ylim(-1.4, 0.6)
     axs[ax].axhline(y=0.0, linestyle='--', color='gray')
     axs[ax].legend(loc = 'upper left', fontsize=12)
 plt.savefig(f'{working_dir}/Effect Size for both genders no CI.png')
