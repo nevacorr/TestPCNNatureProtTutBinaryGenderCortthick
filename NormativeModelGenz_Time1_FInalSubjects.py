@@ -33,7 +33,7 @@ perform_train_test_split_precovid = 1  # flag indicating whether to split traini
                                        # validations (test) sets. If this is set to 0, the entire training set is used
                                        # for the model and there is no validation set. Regardless of the value of this
                                        # flag, no post-covid data is used in creating or evaluating the normative model.
-subjects_to_exclude = [525]  # List of subjects to exclude from analysis. Subject 525 had an incidental finding.
+subjects_to_exclude = [525]  # list of subjects to exclude from analysis. Subject 525 had an incidental finding.
 
 working_dir = os.getcwd()
 
@@ -160,19 +160,19 @@ for c in y_test.columns:
 for i in roi_ids:
     roidirname = '{}/data/{}/ROI_models/{}'.format(working_dir, struct_var, i)
     makenewdir(roidirname)
-    resp_tr_filename = "resp_tr_{}.txt".format(i)
+    resp_tr_filename = "{}/resp_tr_{}.txt".format(working_dir, i)
     resp_tr_filepath = roidirname + '/resp_tr.txt'
     shutil.copyfile(resp_tr_filename, resp_tr_filepath)
-    resp_te_filename = "resp_te_{}.txt".format(i)
+    resp_te_filename = "{}/resp_te_{}.txt".format(working_dir, i)
     resp_te_filepath = roidirname + '/resp_te.txt'
     shutil.copyfile(resp_te_filename, resp_te_filepath)
     cov_tr_filepath = roidirname + '/cov_tr.txt'
-    shutil.copyfile("cov_tr.txt", cov_tr_filepath)
+    shutil.copyfile(f"{working_dir}/cov_tr.txt", cov_tr_filepath)
     cov_te_filepath = roidirname + '/cov_te.txt'
-    shutil.copyfile("cov_te.txt", cov_te_filepath)
+    shutil.copyfile(f"{working_dir}/cov_te.txt", cov_te_filepath)
 
-movefiles("{}/resp_*.txt", "data/{}/response_files/".format(working_dir, struct_var))
-movefiles("{}/cov_t*.txt", "data/{}/covariate_files/".format(working_dir, struct_var))
+movefiles("{}/resp_*.txt".format(working_dir), "{}/data/{}/response_files/".format(working_dir, struct_var))
+movefiles("{}/cov_t*.txt".format(working_dir), "{}/data/{}/covariate_files/".format(working_dir, struct_var))
 
 #  Define path where ROI_models folders are located
 data_dir='{}/data/{}/ROI_models/'.format(working_dir, struct_var)
