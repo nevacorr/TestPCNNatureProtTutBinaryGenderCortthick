@@ -5,6 +5,7 @@
 # Date: 21 February, 2024
 ######
 
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -21,66 +22,67 @@ show_plots = 0  #set to 1 to show training and test data y vs yhat and spline fi
 show_nsubject_plots = 0 #set to 1 to show number of subjects in analysis
 spline_order = 1
 spline_knots = 2
-perform_train_test_split_precovid = 1  #flag indicating whether training set was split into train and validation set
-filepath = '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick'
-num_permute = 1000    #number of permutations to use in calculating signifiance of sex difference in age acceleration
-calc_age_acc_diff_permute = 0
-calc_CI_age_acc_bootstrap = 0
-nbootstrap = 1000
+perform_train_test_split_precovid = 1  # flag indicating whether training set was split into train and validation set
+filepath = os.getcwd()
+subjects_to_exclude = [525]  # subjects to exclude from analysis. Subject 525 had an incidental finding
+calc_CI_age_acc_bootstrap = 0  # specify whether to run bootstrap analysis for CI calculation
+nbootstrap = 1000  #specify number of bootstraps
 
-#turn off interactive mode, don't show plots unless plt.show() is specified
+# Turn off interactive mode, don't show plots unless plt.show() is specified
 plt.ioff()
 
+# Load visit 1 data
 visit=1
 brain_good, all_data, roi_ids = load_genz_data(struct_var, visit, filepath)
 
-#remove subject 525 who has an incidental finding
-all_data = all_data[~all_data['participant_id'].isin([525])]
+# Remove subject 525 who has an incidental finding
+all_data = all_data[~all_data['participant_id'].isin(subjects_to_exclude)]
 
-# read in file of subjects in test set at ages 9, 11 and 13
+# Read in file of subjects in post-COVID test set
 fname='{}/visit2_all_subjects_used_in_test_set_cortthick.txt'.format(filepath, struct_var)
 subjects_test = pd.read_csv(fname, header=None)
 
-# exclude subjects at 9, 11 and 13 who are in test set
+# Exclude subjects at 9, 11 and 13 who are in test set from dataframe of visit 1 data
 all_data = all_data[~all_data['participant_id'].isin(subjects_test[0])]
 
-#replace gender with gender=0 female gender =1 male
+# Replace gender with gender=0 female gender =1 male
 all_data.loc[all_data['sex']==2, 'sex'] = 0
 
-# plot number of subjects of each gender by age who are included in training data set
+# Plot number of subjects of each gender by age who are included in training data set
 if show_nsubject_plots:
     plot_num_subjs(all_data, 'Subjects by Age with Pre-COVID Data\nUsed to Create Model\n'
                    '(Total N=' + str(all_data.shape[0]) + ')', struct_var, 'pre-covid_norm_model', filepath)
 
-#drop rows with any missing values
+# Drop amy rows with any missing values
 all_data = all_data.dropna()
 all_data.reset_index(inplace=True, drop=True)
 
-# If validation data was not used in
+# If validation data was not used in model creation, exclude these subjects from dataframe
 if perform_train_test_split_precovid == 1:
     fname_train = f'{filepath}/train_subjects_excludes_validation.csv'
     subjects_train = pd.read_csv(fname_train, header=None)
     subjects_train = subjects_train[0].tolist()
     all_data = all_data[all_data['participant_id'].isin(subjects_train)]
 
-# separate the brain features (response variables) and predictors (age, gender) in to separate dataframes
+# Separate the brain features (response variables) and predictors (age, gender) in to separate dataframes
 all_data_features_orig = all_data.loc[:,roi_ids]
 all_data_covariates = all_data[['age', 'agedays', 'sex']]
 
-# average cortical thickness across all regions for each subject
+# Average cortical thickness across all regions for each subject
 all_data_features = all_data_features_orig.mean(axis=1).to_frame()
 all_data_features.rename(columns={0:'avgcortthick'},  inplace=True)
 
-# returns the age acceleration for the males and females when cortthick is averaged across the entire brain
+# Create model for when cortthick is averaged across the entire brain
 model_dir, agemin, agemax = calculate_avg_brain_age_acceleration_make_model('allreg',
                         all_data, all_data_covariates, all_data_features, struct_var, show_plots,
                         show_nsubject_plots, spline_order, spline_knots, filepath)
 
-# specify visit number
+# Specify visit number
 visit = 2
-# load all brain and behavior data for visit 2
+# Load all brain and behavior data for visit 2
 brain_good, all_datav2, roi_ids = load_genz_data(struct_var, visit, filepath)
 
+# Load test subject numbeers
 fname = '{}/visit2_all_subjects_used_in_test_set_{}.txt'.format(filepath, struct_var)
 my_file = open(fname, 'r')
 test_subjects_txt = my_file.read()
@@ -90,58 +92,31 @@ while ("" in test_subjects):
     test_subjects.remove("")
 test_subjects = [int(i) for i in test_subjects]
 
+# Create a dataframe with just test subject data
 all_datav2 = all_datav2[all_datav2['participant_id'].isin(test_subjects)]
 
-# replace gender with binary gender
+# Replace gender with binary gender
 all_datav2.loc[all_datav2['sex'] == 2, 'sex'] = 0
 
-# show number of subjects by gender and age
+# Show number of subjects by gender and age
 if show_nsubject_plots:
     plot_num_subjs(all_datav2, 'Subjects with Post-COVID Data\nEvaluated by Model\n'
                    + ' (Total N=' + str(all_datav2.shape[0]) + ')', struct_var, 'post-covid_allsubj', filepath)
 
-# reset indices
+# Reset indices
 all_datav2.reset_index(inplace=True, drop=True)
 
+# Calculate age acceleration
 agediff_female, agediff_male = calculate_avg_brain_age_acceleration_apply_model(roi_ids, 'allreg', all_datav2,
                                                  struct_var, show_plots, model_dir, spline_order, spline_knots, filepath,
                                                  agemin, agemax, num_permute=0, permute=False, shuffnum=0)
 
-mean_agediff_permuted_df = pd.DataFrame()
-if calc_age_acc_diff_permute:
-    for i_permute in range(num_permute):
-        print(f'i_permute = {i_permute}')
-
-        female_agediff, male_agediff = calculate_avg_brain_age_acceleration_apply_model(roi_ids, 'allreg', all_datav2,
-                                                 struct_var, 0, model_dir, spline_order, spline_knots, filepath, agemin,
-                                                 agemax, num_permute=num_permute, permute=True, shuffnum=i_permute)
-
-        m = pd.DataFrame(columns=['female', 'male'])
-        m.loc[0, 'female'] = female_agediff
-        m.loc[0, 'male'] = male_agediff
-        mean_agediff_permuted_df = pd.concat([mean_agediff_permuted_df, m], ignore_index=True)
-
-    # Determine percentile of mean_agediff
-    mean_age_diff_permuted_female = mean_agediff_permuted_df['female'].to_numpy()
-    mean_age_diff_permuted_male = mean_agediff_permuted_df['male'].to_numpy()
-    sex_age_diff_array = np.squeeze(mean_age_diff_permuted_female - mean_age_diff_permuted_male)
-
-    empirical_gender_diff = agediff_female - agediff_male
-    # Find out what percentile value is with respect to array
-    percentile = percentileofscore(sex_age_diff_array, empirical_gender_diff)
-    # # Print the percentile
-    print("The percentile of", empirical_gender_diff, "with respect to the array is:", percentile)
-    # Write empirical percentile and permutation results for sex diff array to file
-    # append empirical percentile to end of array
-    sex_age_diff_array = np.append(sex_age_diff_array, empirical_gender_diff)
-    # Save array to text file
-    np.savetxt(f'{filepath}/sex acceleration distribution.txt', sex_age_diff_array)
-
+# If calculate bootstrap, run analysis repeatedly for each bootstrap and calculate confidence intervals
 if calc_CI_age_acc_bootstrap:
 
-    mean_agediff_boot_f, mean_agediff_boot_m = calculate_avg_brain_age_acceleration_apply_model_bootstrap(roi_ids, all_datav2, struct_var,
-                                                       spline_order, spline_knots,
-                                                       filepath, agemin, agemax, nbootstrap)
+    mean_agediff_boot_f, mean_agediff_boot_m = calculate_avg_brain_age_acceleration_apply_model_bootstrap(roi_ids,
+                                                    all_datav2, struct_var, spline_order, spline_knots,
+                                                    filepath, agemin, agemax, nbootstrap)
 
     ageacc_from_bootstraps = {}
     ageacc_from_bootstraps['female'] = mean_agediff_boot_f
@@ -152,9 +127,8 @@ if calc_CI_age_acc_bootstrap:
         for key, value in ageacc_from_bootstraps.items():
             f.write('%s:%s\n' % (key, value))
 
+# Show plot of age acceleration for each gender
 plot_age_acceleration(filepath, nbootstrap, agediff_female, agediff_male)
-
-
 
 plt.show()
 mystop=1
