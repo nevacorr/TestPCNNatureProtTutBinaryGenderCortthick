@@ -75,7 +75,7 @@ all_data_features.rename(columns={0:'avgcortthick'},  inplace=True)
 # Create model for when cortthick is averaged across the entire brain
 model_dir, agemin, agemax = calculate_avg_brain_age_acceleration_make_model('allreg',
                         all_data, all_data_covariates, all_data_features, struct_var, show_plots,
-                        show_nsubject_plots, spline_order, spline_knots, filepath)
+                        spline_order, spline_knots, filepath)
 
 # Specify visit number
 visit = 2

@@ -1,21 +1,19 @@
 import pandas as pd
 import os
 import shutil
-from pcntoolkit.normative import estimate, evaluate, predict
+from pcntoolkit.normative import estimate, predict
 from Utility_Functions import create_design_matrix, plot_data_with_spline, create_dummy_design_matrix
-from Utility_Functions import plot_y_v_yhat, makenewdir, movefiles, write_list_of_lists, read_list_of_lists
+from Utility_Functions import makenewdir, movefiles, write_list_of_lists, read_list_of_lists
 from normative_edited import predict
 from calculate_brain_age_acceleration import calculate_age_acceleration
 from plot_and_compute_zdistributions import plot_and_compute_zcores_by_gender
 import matplotlib.pyplot as plt
 import random
-from plot_num_subjs import plot_num_subjs
-from Load_Genz_Data import load_genz_data
 
 def calculate_avg_brain_age_acceleration_make_model(desc_string, all_data, all_data_covariates, all_data_features,
-                                                               struct_var, show_plots, show_nsubject_plots,
-                                                               spline_order, spline_knots, filepath):
+                                                        struct_var, show_plots, spline_order, spline_knots, filepath):
 
+    # Create output directories
     makenewdir('{}/avgct_{}/'.format(filepath, desc_string))
     makenewdir('{}/avgct_{}/{}'.format(filepath, desc_string, struct_var))
     makenewdir('{}/avgct_{}/{}/plots'.format(filepath, desc_string, struct_var))
@@ -23,26 +21,27 @@ def calculate_avg_brain_age_acceleration_make_model(desc_string, all_data, all_d
     makenewdir('{}/avgct_{}/{}/covariate_files'.format(filepath, desc_string, struct_var))
     makenewdir('{}/avgct_{}/{}/response_files'.format(filepath, desc_string, struct_var))
 
+    # Save covariates and feature dataframes to new variables
     X_train = all_data_covariates.copy()
     y_train = all_data_features.copy()
 
+    # Determine min and max age of subjects in dataset
     agemin=X_train['agedays'].min()
     agemax=X_train['agedays'].max()
 
-    # save the subject numbers for the training set
+    # Save the subject numbers for the training set
     s_index_train = X_train.index.values
     subjects_train = all_data.loc[s_index_train, 'participant_id'].values
 
-    # drop the age column because we want to use agedays as a predictor
+    # Drop the age column because we want to use agedays as a predictor
     X_train.drop(columns=['age'], inplace=True)
 
-    # reset the indices in the train data set
+    # Reset the indices in the train data set
     X_train.reset_index(drop=True, inplace=True)
     y_train.reset_index(drop=True, inplace=True)
 
     ##########
-    # Set up output directories. Save each brain region to its own text file, organized in separate directories,
-    # because fpr each response variable Y (brain region) we fit a separate normative mode
+    # Set up output directories. In this case, there is only one for average cortical thickness computations.
     ##########
     for c in y_train.columns:
         y_train[c].to_csv(f'{filepath}/resp_tr_'+c+'.txt', header=False, index=False)
@@ -61,19 +60,11 @@ def calculate_avg_brain_age_acceleration_make_model(desc_string, all_data, all_d
     movefiles("{}/resp_*.txt", "{}/avgct_{}/{}/response_files/".format(filepath, filepath, desc_string, struct_var))
     movefiles("{}/cov_t*.txt", "{}/avgct_{}/{}/covariate_files/".format(filepath, filepath, desc_string, struct_var))
 
-    #  this path is where ROI_models folders are located
+    # Define path is where ROI_models folders are located
     data_dir='{}/avgct_{}/{}/ROI_models/'.format(filepath, desc_string, struct_var)
 
     # Create Design Matrix and add in spline basis and intercept
     create_design_matrix('train', agemin, agemax, spline_order, spline_knots, ['avgcortthick'], data_dir)
-
-    # Create pandas dataframes with header names to save evaluation metrics
-    blr_metrics=pd.DataFrame(columns=['ROI', 'MSLL', 'EV', 'SMSE','RMSE', 'Rho'])
-    blr_site_metrics=pd.DataFrame(columns=['ROI', 'y_mean','y_var', 'yhat_mean','yhat_var', 'MSLL', 'EV', 'SMSE', 'RMSE', 'Rho'])
-
-    # create dataframe with subject numbers to put the Z scores  in
-    subjects_train = subjects_train.reshape(-1,1)
-    Z_score_train_matrix = pd.DataFrame(subjects_train, columns=['subject_id_train'])
 
     # Estimate the normative model using a for loop to iterate over brain regions. The estimate function uses a few specific arguments that are worth commenting on:
     # ●alg=‘blr’: specifies we should use BLR. See Table1 for other available algorithms
@@ -82,7 +73,7 @@ def calculate_avg_brain_age_acceleration_make_model(desc_string, all_data, all_d
     # ●saveoutput=False: return the outputs directly rather than writing them to disk
     # ●standardize=False: do not standardize the covariates or response variable
 
-    # Loop through ROIs
+    # Loop through ROIs. In this case there is only one roi: average cortical thickness
 
     for roi in ['avgcortthick']:
         print('Running ROI:', roi)
@@ -90,24 +81,18 @@ def calculate_avg_brain_age_acceleration_make_model(desc_string, all_data, all_d
         model_dir = os.path.join(data_dir, roi, 'Models')
         os.chdir(roi_dir)
 
-        # configure the covariates to use. Change *_bspline_* to *_int_*
+        # Configure the covariates to use. Change *_bspline_* to *_int_*
         cov_file_tr=os.path.join(roi_dir, 'cov_bspline_tr.txt')
 
-        # load train & test response files
+        # Load train & test response files
         resp_file_tr=os.path.join(roi_dir, 'resp_tr.txt')
 
-        # run a basic model on the training dataset and store the predicted response (yhat_tr), the variance of the
+        # Run a basic model on the training dataset and store the predicted response (yhat_tr), the variance of the
         # predicted response (s2_tr), the model parameters (nm), the  Zscores for the train data, and other
-        #various metrics (metrics_tr)
+        # Various metrics (metrics_tr)
         yhat_tr, s2_tr, nm_tr, Z_tr, metrics_tr = estimate(cov_file_tr, resp_file_tr, testresp=resp_file_tr,
                                                     testcov=cov_file_tr, alg='blr', optimizer='powell',
                                                     savemodel=True, saveoutput=False,standardize=False)
-        Rho_tr=metrics_tr['Rho']
-        EV_tr=metrics_tr['EXPV']
-
-        if show_plots:
-            #plot y versus y hat
-            plot_y_v_yhat(cov_file_tr, resp_file_tr, yhat_tr, 'Training Data', struct_var, roi, Rho_tr, EV_tr)
 
         #create dummy design matrices
         dummy_cov_file_path_female, dummy_cov_file_path_male = \
@@ -118,13 +103,15 @@ def calculate_avg_brain_age_acceleration_make_model(desc_string, all_data, all_d
                               dummy_cov_file_path_male, model_dir, roi, show_plots, filepath)
 
     plt.show()
+
     return data_dir, agemin, agemax
 
 def calculate_avg_brain_age_acceleration_apply_model(roi_ids, desc_string, all_datav2, struct_var, show_plots, model_dir, spline_order,
                                                      spline_knots, working_dir, agemin, agemax, num_permute, permute, shuffnum):
+
     #############################  Apply Normative Model to Post-COVID Data ####################
 
-    # create a shuffle stratified by age group
+    # Create a shuffle stratified by age group
     if permute and shuffnum == 0:
         # for permutation testing
         list_to_shuffle = all_datav2['sex'].to_list()
