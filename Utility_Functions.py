@@ -352,4 +352,5 @@ def plot_age_acceleration(working_dir, nbootstrap, mean_agediff_f, mean_agediff_
     plt.xticks([0.2, 0.4], labels=['Male', 'Female'], fontsize=12)
     # Add a gray dashed line at y=0
     plt.axhline(y=0, color='gray', linestyle='--')
+    plt.savefig(f'{working_dir}/Age Acceleration by Sex with CI.pdf', dpi=300, format='pdf')
     plt.show()

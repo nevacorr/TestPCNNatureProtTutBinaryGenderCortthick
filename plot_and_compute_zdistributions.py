@@ -159,7 +159,7 @@ def one_plot(ax, ptitle, ptitleB, Z_male_region, Z_female_region, binedges, zlim
         sns.kdeplot(Z_male_region, ax=ax, color = 'b', bw_adjust=1, label='male')
         sns.kdeplot(Z_female_region, ax=ax, color = 'crimson', bw_adjust=1, label='female')
         ax.set_ylabel('probability density', fontsize=12)
-    ax.axvline(x=0, color='dimgray', linestyle='--')
+    ax.axvline(x=0, color='dimgray', linestyle='--', linewidth=1.2)
     ax.set_xlim(-zlim, zlim)
     ax.set_xlabel('Z-score', fontsize=14)
     if 'caudal anterior cingulate' in ptitleB:
@@ -293,14 +293,14 @@ def plot_separate_figures_sorted(df, Z_female, Z_male, binedges, zlim, struct_va
             ptitleB = f'{bold_string_list[i]}'
             one_plot(ax6, ptitle, ptitleB, Z_male[region], Z_female[region], binedges, zlim, nokde)
             plt.savefig(
-                '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick/data/{}/plots/{}_{}'
-                .format(struct_var, figstr, f'fig{fignum}'))
+                '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick/data/{}/plots/{}_{}.pdf'
+                .format(struct_var, figstr, f'fig{fignum}'), dpi=300, format='pdf')
             fignum += 1
 
         if i == df.shape[0]-1 and a != 0:
             plt.savefig(
-                '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick/data/{}/plots/{}_{}'
-                .format(struct_var, figstr, f'fig{fignum}'))
+                '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick/data/{}/plots/{}_{}.pdf'
+                .format(struct_var, figstr, f'fig{fignum}'), dpi=300, format='pdf')
             fignum += 1
 
         plt.show(block=False)

@@ -66,6 +66,7 @@ def plot_data_with_spline_rh_fusiform(datastr, struct_var, cov_file, resp_file, 
         else:
             plt.show()
     else:
-        plt.savefig('{}/data/{}/plots/{}_vs_age_withsplinefit_{}_{}_fusiform_matchaxis_prepost'
-                .format(working_dir, struct_var, struct_var, roi.replace(struct_var+'-', ''), datastr))
+        plt.savefig('{}/data/{}/plots/{}_vs_age_withsplinefit_{}_{}_fusiform_matchaxis_prepost.pdf'
+                .format(working_dir, struct_var, struct_var, roi.replace(struct_var+'-', ''), datastr), dpi=300,
+                format='pdf')
         plt.close(fig)

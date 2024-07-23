@@ -97,7 +97,7 @@ for ax in [0, 1]:
     axs[ax].tick_params(axis='y', labelsize=10)
     axs[ax].legend(loc='upper left', fontsize=12)
 
-plt.savefig(f'{working_dir}/Mean Effect Size with Confidence Intervals for both genders.png')
+plt.savefig(f'{working_dir}/Mean Effect Size with Confidence Intervals for both genders.pdf', dpi=300, format='pdf')
 plt.show()
 
 # Plot Cohen's d
@@ -116,5 +116,5 @@ for ax in [0, 1]:
     axs[ax].set_ylim(-1.4, 0.6)
     axs[ax].axhline(y=0.0, linestyle='--', color='gray')
     axs[ax].legend(loc = 'upper left', fontsize=12)
-plt.savefig(f'{working_dir}/Effect Size for both genders no CI.png')
+plt.savefig(f'{working_dir}/Effect Size for both genders no CI.pdf', dpi=300, format='pdf')
 plt.show()
