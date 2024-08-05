@@ -1,5 +1,5 @@
 ###
-#This program plots post-covid z-scores from the normative model, and makes a separate curve for each not gender
+#This program plots z-score distributions that represent distributions of deviation from the normative model.
 ####
 
 import pandas as pd
@@ -10,148 +10,15 @@ import seaborn as sns
 import scipy.stats as stats
 import math
 from Utility_Functions import write_list_to_file
-from matplotlib import ticker as mtick
-from matplotlib import rc
-
-def plot_and_compute_zcores_onlykde_specify_region(Z_time2, struct_var, roi_ids, region, ymax):
-    # add gender to Z score dataframe
-    # females have even subject numbers, males have odd subject numbers
-    Z_time2['gender'] = Z_time2['participant_id'].apply(lambda x: 2 if x % 2 == 0 else 1)
-    # move the gender column to the front of the dataframe
-    gender = Z_time2.pop('gender')
-    Z_time2.insert(1, 'gender', gender)
-
-    Z_female = Z_time2[Z_time2['gender'] == 2]
-    Z_male = Z_time2[Z_time2['gender'] == 1]
-   # region = 'cortthick-rh-precuneus'
-
-    zf = Z_female[region].values
-    t_statistic_f, p_value_f = stats.ttest_1samp(zf, popmean=0, nan_policy='raise')
-
-    zm = Z_male[region].values
-    t_statistic_m, p_value_m = stats.ttest_1samp(zm, popmean=0, nan_policy='raise')
-
-    reject_f, pvals_corrected_f, a1_f, a2_f = smt.multipletests(p_value_f, alpha=0.05, method='fdr_bh')
-    reject_m, pvals_corrected_m, a1_m, a2_m = smt.multipletests(p_value_m, alpha=0.05, method='fdr_bh')
-
-    regions_reject_f = [roi_id for roi_id, reject_value in zip(roi_ids, reject_f) if reject_value]
-    regions_reject_m = [roi_id for roi_id, reject_value in zip(roi_ids, reject_m) if reject_value]
-
-    maxf = Z_female[region].max(axis=0).max()
-    maxm = Z_male[region].max(axis=0).max()
-    minf = Z_female[region].min(axis=0).min()
-    minm = Z_male[region].min(axis=0).min()
-
-    binmin = min(minf, minm)
-    binmax = max(maxf, maxm)
-    binedges = np.linspace(binmin-0.5, binmax+0.5, 24)
-
-    zmax = math.ceil(binedges[-1])
-    zmin = math.floor(binedges[0])
-    zlim = abs(max(abs(zmin), abs(zmax)))
-    zlim=5
-
-    fig, ax1 = plt.subplots(nrows=1, ncols=1)
-    fig.set_size_inches(4.1, 6)
-
-    #ptitle = 'right hemisphere precuneus\nby gender'
-    ptitle = region
-    one_plot(ax1, ptitle, Z_male[region], Z_female[region], binedges, zlim, 1, 0)
-
-    # sns.kdeplot(Z_time2[region], color='k', ax=ax1)
-    ax1.set_xlim(-zlim, zlim)
-    ax1.set_ylim(0.0, ymax)
-    ax1.set_xlabel('z-score', fontsize=12)
-    ax1.set_ylabel('probability density', fontsize=12)
-    ax1.set_title(f'{region}\nall subjects', fontsize=12)
-    ax1.axvline(x=0, color='dimgray', linestyle='--')
-
-    fmt='%.2f'
-    yticks=mtick.FormatStrFormatter(fmt)
-    ax1.yaxis.set_major_formatter(yticks)
-
-    plt.tight_layout()
-    plt.show(block=False)
-
-
-def plot_and_compute_zcores(Z_time2, struct_var, roi_ids):
-
-    p_values = []
-    for region in roi_ids:
-        z2 = Z_time2[region].values
-        t_statistic, p_value = stats.ttest_1samp(z2, popmean=0, nan_policy='raise')
-        p_values.append(p_value)
-
-    reject, pvals_corrected, a1, a2 = smt.multipletests(p_values ,alpha=0.05, method='fdr_bh')
-
-    sig_string_list=[]
-    for i, r in enumerate(roi_ids):
-        zmean = np.mean(Z_time2[r])
-        sig_string_list.append(f'{r}: mean = {zmean:.2} p-value = {pvals_corrected[i]:.2e}, Mean not 0 is {reject[i]}')
-
-    for i, region in enumerate(roi_ids):
-        if reject[i] == True:
-            fig, axs = plt.subplots(2)
-            fig.set_size_inches(10, 9)
-            plt.subplot(2,1,1)
-            zmin=min(Z_time2[region])
-            zmax=max(Z_time2[region])
-            l2=plt.hist(Z_time2[region], label='post-covid')
-            plt.xlim(zmin-4, zmax+4)
-            plt.xlabel('Z-score')
-            plt.legend()
-            fig.suptitle('Z-score Distributions Based on Normative Model\n{}'.format(sig_string_list[i]))
-            ax = plt.subplot(2,1,2)
-            sns.kdeplot(Z_time2[region], ax=axs[1])
-            plt.xlim(zmin-4, zmax+4)
-            plt.xlabel('Z-score')
-            plt.show(block=False)
-            plt.savefig(
-            '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick/data/{}/plots/Z_scores_post_covid_{}'
-               .format(struct_var, region))
-            # plt.close()
-    plt.show()
-
-def plot_by_gender(struct_var, Z_female, Z_male, roi_ids, reject_f, reject_m, pvals_corrected_f, pvals_corrected_m):
-    sig_string_list = []
-    for i, r in enumerate(roi_ids):
-        zmean_f = np.mean(Z_female[r])
-        zmean_m = np.mean(Z_male[r])
-        sig_string_list.append(
-            f'{r}: female mean = {zmean_f:.2} p-value = {pvals_corrected_f[i]:.2e}, Mean not 0 is {reject_f[i]}\n'
-            f'{r}: male mean = {zmean_m:.2} p-value = {pvals_corrected_m[i]:.2e}, Mean not 0 is {reject_m[i]}')
-    for i, region in enumerate(roi_ids):
-        if (reject_f[i] == True) | (reject_m[i] == True):
-            fig, axs = plt.subplots(2)
-            fig.set_size_inches(10, 9)
-            plt.subplot(2, 1, 1)
-            zmin = min(Z_female[region])
-            zmax = max(Z_female[region])
-            lf = plt.hist(Z_female[region], label='post-covid female', alpha=0.8)
-            lm = plt.hist(Z_male[region], label='post-covid male', alpha=0.8)
-            plt.xlim(zmin - 4, zmax + 4)
-            plt.xlabel('Z-score')
-            plt.legend()
-            fig.suptitle('Z-score Distributions Based on Normative Model\n{}'.format(sig_string_list[i]))
-            ax = plt.subplot(2, 1, 2)
-            sns.kdeplot(Z_female[region], ax=axs[1], bw_adjust=0.5)
-            sns.kdeplot(Z_male[region], ax=axs[1], bw_adjust=0.5)
-            plt.xlim(zmin - 4, zmax + 4)
-            plt.xlabel('Z-score')
-            plt.show(block=False)
-            # plt.savefig(
-            # '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick/data/{}/plots/Z_scores_post_covid_by_gender{}'
-            # .format(struct_var, region))
-            # plt.close()
-            mystop = 1
-    plt.show()
 
 def one_plot(ax, ptitle, ptitleB, Z_male_region, Z_female_region, binedges, zlim, nokde):
     if nokde==1:
+        # plot histogram
         ax.hist(Z_female_region, bins=binedges, label='female', alpha=1.0, color='crimson')
         ax.hist(Z_male_region, bins=binedges, label='male', alpha=0.7, color='b')
         ax.set_ylabel('Number of Subjects', fontsize=14)
     elif nokde==0:
+        # plot histogram with kernel density estimate
         Z_male_df = pd.Series(Z_male_region, name='male').to_frame()
         Z_female_df = pd.Series(Z_female_region, name='female').to_frame()
         Z_male_df.rename(columns={0: 'male'}, inplace=True)
@@ -162,14 +29,14 @@ def one_plot(ax, ptitle, ptitleB, Z_male_region, Z_female_region, binedges, zlim
     ax.axvline(x=0, color='dimgray', linestyle='--', linewidth=1.2)
     ax.set_xlim(-zlim, zlim)
     ax.set_xlabel('Z-score', fontsize=14)
+    # reduce font size for region that has overlap with other titles
     if 'caudal anterior cingulate' in ptitleB:
         plt.text(0.5, 1.12, ptitleB, fontsize=12, fontweight='bold', ha='center', va='bottom', transform=ax.transAxes)
     else:
         plt.text(0.5, 1.12, ptitleB, fontsize=14, fontweight='bold', ha = 'center', va='bottom', transform=ax.transAxes)
     plt.text(0.5, 1.01, ptitle, fontsize=14, ha='center', va='bottom', transform=ax.transAxes)
-    #ax.set_title(ptitle, fontsize=16)
     ax.tick_params(axis='both', which='major', labelsize=12)
-    # Need to switch order in legend so males are listed first to be consistent with other plots in manuscript
+    # Switch order in legend so males are listed first to be consistent with other plots in manuscript
     # Get the handles and labels from the ax
     handles, labels = ax.get_legend_handles_labels()
     # Reorder the handles and labels
@@ -258,12 +125,6 @@ def plot_separate_figures_sorted(df, Z_female, Z_male, binedges, zlim, struct_va
     fignum = f
     for i, region in enumerate(df['roi_ids']):
         a = (i + 1) % 6
-        # if (df.shape[0] <30 ) & (i == df.shape[0]-1):
-        #     yeslegend = 1
-        # elif a == 3:
-        #     yeslegend = 1
-        # else:
-        #     yeslegend = 0
 
         if a == 1:
             ptitleB = f'{bold_string_list[i]}'
@@ -340,52 +201,6 @@ def plot_by_gender_no_kde(struct_var, Z_female, Z_male, roi_ids, reject_f, rejec
     plt.show()
     mystop=1
 
-def plot_by_gender_distsubplots(Z_female, Z_male, roi_ids, reject_f, reject_m, pvals_corrected_f, pvals_corrected_m):
-    #there is an error in this function it does not always plot the right label with the distribution
-    sig_string_list = []
-    for i, r in enumerate(roi_ids):
-        zmean_f = np.mean(Z_female[r])
-        zmean_m = np.mean(Z_male[r])
-        sig_string_list.append(
-            f'{r}: female mean = {zmean_f:.2} p = {pvals_corrected_f[i]:.2e}, Mean not 0 is {reject_f[i]}\n'
-            f'{r}: male mean = {zmean_m:.2} p = {pvals_corrected_m[i]:.2e}, Mean not 0 is {reject_m[i]}')
-    n_rows=3
-    n_cols=4
-    sns.set(font_scale=0.5)
-    num_plots=37
-    m=math.ceil(num_plots/n_rows*n_cols)
-    last_roi_id=0
-    allplotnum=0
-    sns.set_style(style='white')
-    for row in range(0,m,n_rows*n_cols):
-        fig, axes = plt.subplots(nrows=n_rows, ncols=n_cols)
-        fig.subplots_adjust(hspace=0.3, wspace=0.5)
-        fig.set_size_inches(16,8)
-        fig.suptitle('Cortical Thickness Z-score Distributions Based on Normative Model')
-        plotnum=0
-        for i, region in enumerate(roi_ids[last_roi_id:]):
-            if (reject_f[i] == True) | (reject_m[i] == True):
-                zmin = min(Z_female[region])
-                zmax = max(Z_female[region])
-                ax = axes[plotnum // n_cols, plotnum % n_cols]
-                sns.kdeplot(Z_female[region], ax=ax)
-                sns.kdeplot(Z_male[region], ax=ax)
-                plt.xlim(zmin - 4, zmax + 4)
-                ax.set_title(sig_string_list[i])
-                ax.set_xlabel('')
-              #  plt.legend()
-                plotnum+=1
-                allplotnum+=1
-            if plotnum == n_cols*n_rows:
-                last_roi_id = allplotnum
-                plt.show()
-                break
-         # plt.savefig(
-        # '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick/data/{}/plots/Z_scores_post_covid_by_gender_dist_subplots{}'
-        #   .format(struct_var, region))
-         #          plt.close()
-        mystop=1
-
 def plot_and_compute_zcores_by_gender(Z_time2, struct_var, roi_ids):
     #add gender to Z score dataframe
     #females have even subject numbers, males have odd subject numbers
@@ -430,14 +245,6 @@ def plot_and_compute_zcores_by_gender(Z_time2, struct_var, roi_ids):
 
     binedges = np.linspace(binmin-0.5, binmax+0.5, 24)
 
-    #plot_and_compute_zcores(Z_time2, struct_var, roi_ids)
-
-    #plot_by_gender(struct_var, Z_female, Z_male, roi_ids, reject_f, reject_m, pvals_corrected_f, pvals_corrected_m)
     nokde=1
     plot_by_gender_no_kde(struct_var, Z_female, Z_male, roi_ids, reject_f, reject_m, pvals_corrected_f, pvals_corrected_m, binedges, nokde)
 
-    #there is something wrong the function commented out in next line
-    #it doesn't seem to always plot the correct distribution with the corect label
-    #plot_by_gender_distsubplots(Z_female, Z_male, roi_ids, reject_f, reject_m, pvals_corrected_f, pvals_corrected_m)
-
-    mystop=1

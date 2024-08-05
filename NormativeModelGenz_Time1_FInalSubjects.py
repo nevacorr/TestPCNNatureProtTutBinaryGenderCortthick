@@ -110,7 +110,7 @@ if perform_train_test_split_precovid:
     X_train, X_test, y_train, y_test = train_test_split(all_data_covariates, all_data_features,
                                                     stratify=all_data[['age', 'sex']], test_size=0.2, random_state=1)
 else:
-# Use entire training set to create models
+# Use entire training set to create model
     X_train = all_data_covariates.copy()
     X_test = all_data_covariates.copy()
     y_train = all_data_features.copy()
