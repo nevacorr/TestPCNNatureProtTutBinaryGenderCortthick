@@ -40,7 +40,7 @@ def load_genz_data(struct_var, visit, path):
     # Check that subject rows align across covariate and brain dataframes
     # Make sure to use how = "inner" so that we only include subjects with data in both dataframes
     all_data = pd.merge(cov, brain_good, how='inner')
-    # create a list of all the columns you want to run a normative model for
+    # create a list of all the columns to run a normative model for
     roi_ids=all_data.columns.values.tolist()
     #remove subject info from list of brain regions to run normative model on
     remove_list = ['participant_id', 'age', 'sex', 'agedays']
