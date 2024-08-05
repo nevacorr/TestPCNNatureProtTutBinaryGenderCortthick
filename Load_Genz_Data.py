@@ -1,6 +1,5 @@
-# This function loads all adolescent visit 1 and visit 2 brain structural measures and behavior data,
-# demographic measures, puberty measures and MRI data quality measures. It then only keeps the data
-# for the visit of interest and returns the structural brain values for all regions, the covariates,
+# This function loads adolescent visit 1 and visit 2 cortical thickness and quality control data. It then only keeps
+# the data for the visit of interest and returns the cortical thickness values for all regions, the covariates,
 # and a list of all region names
 ##########
 

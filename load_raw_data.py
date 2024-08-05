@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 def load_raw_data(struct_var, visit, path):
-    # Load MPF, cortical thickness gm, affective behavior and social media data
+
+    # Load corticl thickness data
     genz_data_combined = pd.read_csv(f'{path}/Adol_CortThick_data.csv')
 
     # remove rows with missing data
