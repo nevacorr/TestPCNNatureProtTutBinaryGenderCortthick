@@ -91,7 +91,7 @@ def create_dummy_design_matrix(struct_var, agemin, agemax, cov_file, spline_orde
     return dummy_cov_file_path_female, dummy_cov_file_path_male
 
 
-# this function plots  data with spline model superimposed, for both male and females
+# this function plots data with spline model superimposed, for both male and females
 def plot_data_with_spline(datastr, struct_var, cov_file, resp_file, dummy_cov_file_path_female,
                               dummy_cov_file_path_male, model_dir, roi, showplots, working_dir):
 
@@ -186,7 +186,6 @@ def barplot_performance_values(struct_var, metric, df, spline_order, spline_knot
     plt.savefig(
         '{}/data/{}/plots/{}_{}_for_all_regions_splineorder{}, splineknots{}.png'
         .format(path, struct_var, datastr, metric, spline_order, spline_knots))
-    #plt.close(fig)
 
 def write_ages_to_file(agemin, agemax, struct_var):
     with open("agemin_agemax_Xtrain_{}.txt".format(struct_var), "w") as file:
@@ -208,55 +207,6 @@ def write_list_to_file(mylist, filepath):
    with open(filepath, 'w') as file:
        for item in mylist:
            file.write(item + '\n')
-
-def plot_brain_age_gap_by_gender(brain_age_gap_df, model_type, include_gender):
-    #input dataframe must have a 'gender' columns and an 'agediff' column
-    #plot figure
-    fig=plt.figure(figsize=(7,7))
-    if include_gender ==0:
-        #plot histograms
-        mean_diff = brain_age_gap_df['agediff'].mean()
-        sns.histplot(data=brain_age_gap_df, x='agediff')
-        plt.title(
-            f'{model_type} Distributions of difference between post-COVID\n lockdown age and actual age\n '
-            f'mean diff = {mean_diff:.1f} years')
-    elif include_gender == 1:
-       # find mean of age_diff by gender
-        means_by_gender = brain_age_gap_df.groupby('gender')['agediff'].mean()
-        mean_diff_male = means_by_gender[1]
-        mean_diff_female = means_by_gender[2]
-        p = {'male': 'blue', 'female': 'orange'}
-        brain_age_gap_df['gender'].replace({1: 'male', 2: 'female'}, inplace=True)
-        #plot histograms
-        sns.histplot(data=brain_age_gap_df, x='agediff', hue='gender', palette = p, element='step')
-        plt.title(
-            f'{model_type} Distributions of difference between post-COVID\n lockdown age and actual age by gender\n '
-            f'mean diff male = {mean_diff_male:.1f} years mean diff female = {mean_diff_female:.1f} years')
-    plt.xlabel('Predicted post-Covid lock down age  - actual age (years)')
-    plt.ylabel('Number of subjects')
-    plt.show(block=False)
-
-def plotactual_age_vs_predicted_age(X_test_v2, y_test_v2, y_test_pred_v2, datatypestr, model_type, include_gender):
-    if datatypestr == 'train':
-        covid_str = 'pre-covid'
-    elif datatypestr == 'test':
-        covid_str = 'post-covid'
-    plt.figure()
-    ax=plt.axes()
-    if include_gender ==0:
-        sc = ax.scatter(y_test_v2, y_test_pred_v2)
-    elif include_gender ==1:
-        gen = X_test_v2['sex']
-        cmap_custom = ListedColormap(['blue', 'orange'])
-        sc = ax.scatter(y_test_v2, y_test_pred_v2, c=gen, cmap=cmap_custom)
-        handles, labels = sc.legend_elements()
-        labels=['male', 'female']
-        ax.legend(handles, labels)
-    ax.plot([y_test_v2.min(), y_test_v2.max()], [y_test_v2.min(), y_test_v2.max()], color='red')  # plots line y = x
-    ax.set_xlabel('actual age (days)')
-    ax.set_ylabel('predicted age (days)')
-    ax.set_title(f'{model_type} predicted vs actual age for {covid_str} lockdown data')
-    plt.show(block=False)
 
 def fit_regression_model_dummy_data(model_dir, dummy_cov_file_path_female, dummy_cov_file_path_male):
     # create dummy data to find equation for linear regression fit between age and structvar
@@ -282,15 +232,6 @@ def fit_regression_model_dummy_data(model_dir, dummy_cov_file_path_female, dummy
     # find slope and intercept of lines
     slope_f, intercept_f, rvalue_f, pvalue_f, std_error_f = stats.linregress(dummy_ages_f, yhat_predict_dummy_f)
     slope_m, intercept_m, rvalue_m, pvalue_m, std_error_m = stats.linregress(dummy_ages_m, yhat_predict_dummy_m)
-
-    # #plot dummy data with fit
-    # plt.figure()
-    # plt.plot(dummy_ages_f, yhat_predict_dummy_f, 'og', markersize=3, markerfacecolor='None')
-    # plt.plot(dummy_ages_m, yhat_predict_dummy_m, 'ob', markersize=3, markerfacecolor='None')
-    # plt.plot(dummy_ages_f, slope_f*dummy_ages_f+intercept_f, '-k', linewidth=1)
-    # plt.plot(dummy_ages_m, slope_m*dummy_ages_f+intercept_m, '-k', linewidth=1)
-    # # plt.title(roi)
-    # plt.show(block=False)
 
     return slope_f, intercept_f, slope_m, intercept_m
 
@@ -320,7 +261,7 @@ def plot_age_acceleration(working_dir, nbootstrap, mean_agediff_f, mean_agediff_
             # Add the key-value pair to the dictionary
             ageacc_from_bootstraps[key] = value
 
-    # Convert age acceleration dictionoary to series for each gender
+    # Convert age acceleration dictionary to series for each gender
     female_acc = pd.Series(ast.literal_eval(ageacc_from_bootstraps['female']))
     male_acc = pd.Series(ast.literal_eval(ageacc_from_bootstraps['male']))
 
