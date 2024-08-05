@@ -3,8 +3,7 @@
 # NatureProtocols 2022 (https://doi.org/10.1038/s41596-022-00696-5). Here the modeling is applied to
 # adolescent cortica1 thickness data collected at two time points (before and after the COVID lockdowns).
 # This program creates models of cortical thickness change between 9 and 17 years of age for our pre-COVID data and
-# stores these models to be applied in another script (Apply_Normative_Model_to_Genz_Time2_Final_Subjects.py)
-# to the post-COVID data.
+# stores these models to be applied in another script to the post-COVID data.
 # Author: Neva M. Corrigan
 # Date: 21 February, 2024
 ######
@@ -52,7 +51,7 @@ makenewdir('data/{}/ROI_models'.format(struct_var))
 makenewdir('data/{}/covariate_files'.format(struct_var))
 makenewdir('data/{}/response_files'.format(struct_var))
 
-# Remove subject 525 who has an incidental finding
+# Remove subjects to exclude
 brain_good = brain_good[~brain_good['participant_id'].isin(subjects_to_exclude)]
 all_data = all_data[~all_data['participant_id'].isin(subjects_to_exclude)]
 
@@ -138,7 +137,7 @@ subjects_test_df.to_csv(f'{working_dir}/validation_subjects.csv', index=False, h
 X_train.drop(columns=['age'], inplace=True)
 X_test.drop(columns=['age'], inplace=True)
 
-# change the indices in the train and validation data sets
+# reset the indices in the train and validation data sets
 X_train.reset_index(drop=True, inplace=True)
 X_test.reset_index(drop=True, inplace=True)
 y_train.reset_index(drop=True, inplace=True)
@@ -215,9 +214,7 @@ for roi in roi_ids:
     resp_file_tr=os.path.join(roi_dir, 'resp_tr.txt')
     resp_file_te=os.path.join(roi_dir, 'resp_te.txt')
 
-    # calculate a model based on the training data and apply to the validation dataset. If the model is being created
-    # from the entire training set, the validation set is simply a copy of the full training set and the purpose of
-    # running this function is to create and save the model, not to evaluate performance. The following are calculated:
+    # calculate a model based on the training data and apply to the validation dataset. The following are calculated:
     # the predicted validation set response (yhat_te), the variance of the predicted response (s2_te), the model
     # parameters (nm),the Zscores for the validation data, and other various metrics (metrics_te)
     yhat_te, s2_te, nm, Z_te, metrics_te = estimate(cov_file_tr, resp_file_tr, testresp=resp_file_te,
@@ -241,7 +238,7 @@ for roi in roi_ids:
     plot_data_with_spline('Validation Data', struct_var, cov_file_te, resp_file_te, dummy_cov_file_path_female,
                           dummy_cov_file_path_male, model_dir, roi, show_plots, working_dir)
 
-    # Make plot fo rrh fusiform with custom formatting to serve as figure in manuscript
+    # Make plot for rh fusiform with custom formatting to serve as figure in manuscript
     if roi == 'cortthick-rh-fusiform':
         plot_data_with_spline_rh_fusiform('Pre-COVID Subsample ', struct_var, cov_file_tr, resp_file_tr,
                                           dummy_cov_file_path_female, dummy_cov_file_path_male, model_dir, roi,
@@ -268,7 +265,7 @@ for roi in roi_ids:
     # Calculate performance statistics
     metrics_te = evaluate(y_te, yhat_te, s2_te,y_mean_te, y_var_te)
 
-    # Save performance statistics for validaton set for this roi
+    # Save performance statistics for validation set for this roi
     blr_site_metrics.loc[len(blr_site_metrics)] = [roi, y_mean_te, y_var_te, yhat_mean_te, yhat_var_te, metrics_te['MSLL'][0],
                                                  metrics_te['EXPV'][0], metrics_te['SMSE'][0], metrics_te['RMSE'][0],
                                                  metrics_te['Rho'][0]]
@@ -282,7 +279,7 @@ blr_site_metrics.to_csv('{}/data/{}/blr_metrics_{}.txt'.format(working_dir, stru
 Z_score_test_matrix.to_csv('{}/data/{}/Z_scores_by_region_validation_set.txt'. format(working_dir, struct_var),
                            index=False)
 
-# If validation set is independent of training set, plot histograms of Z-scores for validation set
+# Plot histograms of Z-scores for validation set
 if perform_train_test_split_precovid:
     Z_score_test = Z_score_test_matrix.copy()
     Z_score_test.rename(columns = {'subject_id_test': 'participant_id'}, inplace=True)
