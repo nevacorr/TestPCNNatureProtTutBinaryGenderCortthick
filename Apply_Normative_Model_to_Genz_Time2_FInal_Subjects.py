@@ -72,7 +72,7 @@ all_data.reset_index(inplace=True, drop=True)
 # Read agemin and agemax from file
 agemin, agemax = read_ages_from_file(struct_var)
 
-# Replace gender with binary gender
+# Replace gender with binary (0 or 1) gender
 all_data.loc[all_data['sex'] == 2, 'sex'] = 0
 
 # Show number of subjects by gender and age
