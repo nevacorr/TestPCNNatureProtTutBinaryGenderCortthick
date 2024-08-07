@@ -4,15 +4,9 @@
 
 
 import pandas as pd
-import matplotlib.pyplot as plt
-from plot_num_subjs import plot_num_subjs
-from pcntoolkit.normative import estimate, evaluate
-from plot_num_subjs import plot_num_subjs
 from Utility_Functions import create_design_matrix, plot_data_with_spline
 from Utility_Functions import create_dummy_design_matrix
 from Utility_Functions import plot_y_v_yhat, makenewdir, movefiles
-from Utility_Functions import write_ages_to_file, read_ages_from_file
-from Load_Genz_Data import load_genz_data
 import shutil
 import os
 from normative_edited import predict
@@ -127,7 +121,5 @@ def calculate_avg_brain_age_acceleration_apply_model_bootstrap(roi_ids, all_data
 
             mean_agediff_boot_f.append(mean_f)
             mean_agediff_boot_m.append(mean_m)
-
-        mystop=1
 
     return mean_agediff_boot_f, mean_agediff_boot_m
