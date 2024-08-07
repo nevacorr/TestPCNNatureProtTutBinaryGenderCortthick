@@ -1,5 +1,6 @@
 #####
 # Author: Neva M. Corrigan
+# Returns age acceleration for males and females for post-covid data based on pre-covid model.
 # Date: 21 February, 2024
 ######
 
@@ -82,11 +83,6 @@ def calculate_age_acceleration(struct_var, roi_dir, yhat, model_dir, roi,
         plt.title('Mean Age Gap by Age Group and Gender')
         plt.legend()
         plt.show()
-
-        # plt.scatter(mean_vals_f.loc[:,'actual_age'], mean_vals_f.loc[:,'age_gap'], c='green')
-        # plt.scatter(mean_vals_m.loc[:,'actual_age'], mean_vals_m.loc[:,'age_gap'], c='blue')
-        # plt.legend(['female, male'])
-        # plt.show()
 
     #subtract mean average age from mean predicted age for each age group
     mean_agediff_f = np.mean(np.subtract(predicted_age_f, actual_age_f))/days_to_years_factor

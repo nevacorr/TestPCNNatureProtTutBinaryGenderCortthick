@@ -107,40 +107,9 @@ def calculate_avg_brain_age_acceleration_make_model(desc_string, all_data, all_d
     return data_dir, agemin, agemax
 
 def calculate_avg_brain_age_acceleration_apply_model(roi_ids, desc_string, all_datav2, struct_var, show_plots, model_dir, spline_order,
-                                                     spline_knots, working_dir, agemin, agemax, num_permute, permute, shuffnum):
+                                                     spline_knots, working_dir, agemin, agemax):
 
     #############################  Apply Normative Model to Post-COVID Data ####################
-
-    # Create a shuffle stratified by age group
-    if permute and shuffnum == 0:
-        # for permutation testing
-        list_to_shuffle = all_datav2['sex'].to_list()
-        list_for_stratify = all_datav2['age']
-        unique_values = set(list_for_stratify)
-        # shuffle this list 100 times and save to list of lists
-        list_of_shuffled_sex = []
-        for _ in range(num_permute):
-            shuffled_sex = []
-            for value in unique_values:
-                indices = [i for i, v in enumerate(list_for_stratify) if v == value]
-                shuffled_indices = random.sample(indices, len(indices))
-                for index in shuffled_indices:
-                    shuffled_sex.append(list_to_shuffle[index])
-            list_of_shuffled_sex.append(shuffled_sex)
-            mystop = 1
-        # save list of lists to file
-        write_list_of_lists(list_of_shuffled_sex, f'{working_dir}/sexes_permuted.txt')
-
-    if permute:
-        list_of_shuffled_sex = read_list_of_lists(f'{working_dir}/sexes_permuted.txt')
-        shuffled_sex = list_of_shuffled_sex[shuffnum]
-
-        # Reorder the 'sex' column based on the new_order list
-        all_datav2.loc[:, 'sex'] = shuffled_sex
-
-    # Write number of each unique values to screen
-    for index, value in all_datav2['sex'].value_counts().items():
-        print(f'Number of values {index} is {value}')
 
     # separate the brain features (response variables) and predictors (age, gender) in to separate dataframes
     all_datav2_features = all_datav2.loc[:, roi_ids]
@@ -226,19 +195,14 @@ def calculate_avg_brain_age_acceleration_apply_model(roi_ids, desc_string, all_d
 
         #calculate brain age acceleration for each region
         mean_agediff_f, mean_agediff_m = calculate_age_acceleration(struct_var, roi_dir, yhat_te, model_dir, roi,
-                                                        dummy_cov_file_path_female, dummy_cov_file_path_male, plotgap=1)
+                                                        dummy_cov_file_path_female, dummy_cov_file_path_male, plotgap=0)
 
 
-    if not permute:
-
-        plot_data_with_spline('Postcovid (Test) Data ', struct_var, cov_file_te, resp_file_te, dummy_cov_file_path_female,
-                                  dummy_cov_file_path_male, model_dir, roi, show_plots, working_dir)
-
-        Z_time2.to_csv('{}/avgct_{}_predict_files/{}/Z_scores_by_region_postcovid_testset_avgct.txt'
+    Z_time2.to_csv('{}/avgct_{}_predict_files/{}/Z_scores_by_region_postcovid_testset_avgct.txt'
                                 .format(working_dir, desc_string, struct_var), index=False)
 
 
-        plot_and_compute_zcores_by_gender(Z_time2, struct_var, roi_ids)
-        plt.show()
+    plot_and_compute_zcores_by_gender(Z_time2, struct_var, roi_ids)
+    plt.show()
 
     return mean_agediff_f, mean_agediff_m

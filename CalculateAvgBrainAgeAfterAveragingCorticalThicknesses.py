@@ -1,6 +1,7 @@
 #####
 # This program calculates brain age acceleration based on the adolescent data. It averages cortical thickness across
-# all brain regions. It fits a model on the precovid data and evaluates the model on the post-covid data.
+# all brain regions. It fits a model on the precovid data and evaluates the model on the post-covid data. It
+# includes an option to use bootstrapping for confidence interval calculation.
 # Author: Neva M. Corrigan
 # Date: 21 February, 2024
 ######
@@ -19,7 +20,7 @@ from calculate_avg_brain_age_acceleration_apply_model_bootstrap import calculate
 
 struct_var = 'cortthick'
 show_plots = 0  #set to 1 to show training and test data y vs yhat and spline fit plots. Set to 0 to save to file.
-show_nsubject_plots = 0 #set to 1 to show number of subjects in analysis
+show_nsubject_plots = 0 #set to 1 to show number of subjects at each age and sex in analysis
 spline_order = 1
 spline_knots = 2
 perform_train_test_split_precovid = 1  # flag indicating whether training set was split into train and validation set
@@ -95,7 +96,7 @@ test_subjects = [int(i) for i in test_subjects]
 # Create a dataframe with just test subject data
 all_datav2 = all_datav2[all_datav2['participant_id'].isin(test_subjects)]
 
-# Replace gender with binary gender
+# Recode gender as 0=female 1=male
 all_datav2.loc[all_datav2['sex'] == 2, 'sex'] = 0
 
 # Show number of subjects by gender and age
@@ -109,7 +110,7 @@ all_datav2.reset_index(inplace=True, drop=True)
 # Calculate age acceleration
 agediff_female, agediff_male = calculate_avg_brain_age_acceleration_apply_model(roi_ids, 'allreg', all_datav2,
                                                  struct_var, show_plots, model_dir, spline_order, spline_knots, filepath,
-                                                 agemin, agemax, num_permute=0, permute=False, shuffnum=0)
+                                                 agemin, agemax)
 
 # If calculate bootstrap, run analysis repeatedly for each bootstrap and calculate confidence intervals
 if calc_CI_age_acc_bootstrap:
@@ -131,4 +132,3 @@ if calc_CI_age_acc_bootstrap:
 plot_age_acceleration(filepath, nbootstrap, agediff_female, agediff_male)
 
 plt.show()
-mystop=1
