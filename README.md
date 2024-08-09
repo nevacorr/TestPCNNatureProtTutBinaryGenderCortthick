@@ -37,3 +37,12 @@ are used to refer to the pre-COVID data. The phrases "time 2", "visit 2" or
 NormativeModelGenz_Time1.py file, "test" sometimes refers to a validation set
 that is a subset of the training data. Comments within that file provide
 clarification.
+
+## Alternate analysis: Separate Models for Males and Females
+
+You can reproduce the results in the alternate analysis which allows for interactions between the two sexes by creating separate normative models by running the following script which is in folder Separate_MF_Models:
+
+
+1. **NormativeModel_Create_and_Apply_Genz_M_F_Separate
+
+This script uses functions contained in the other Python files located in this folder, plus some of the files in the main directory. 
