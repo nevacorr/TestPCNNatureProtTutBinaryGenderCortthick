@@ -167,7 +167,8 @@ def plot_separate_figures_sorted(df, Z_female, Z_male, binedges, zlim, struct_va
         plt.show(block=False)
     return fignum
 
-def plot_by_gender_no_kde(struct_var, Z_female, Z_male, roi_ids, reject_f, reject_m, pvals_corrected_f, pvals_corrected_m, binedges, nokde):
+def plot_by_gender_no_kde(struct_var, Z_female, Z_male, roi_ids, reject_f, reject_m, pvals_corrected_f,
+                          pvals_corrected_m, binedges, nokde, working_dir):
 
     zmax = math.ceil(binedges[-1])
     zmin = math.floor(binedges[0])
@@ -193,10 +194,10 @@ def plot_by_gender_no_kde(struct_var, Z_female, Z_male, roi_ids, reject_f, rejec
     rois_pvals_notsig.sort_values(by=['pfemale'], axis=0, inplace=True, ignore_index=True)
 
     #plot separate figures for each category
-    fignum=plot_separate_figures_sorted(rois_pvals_sig_femalesigonly, Z_female, Z_male, binedges, zlim, struct_var,0, nokde)
-    fignum=plot_separate_figures_sorted(rois_pvals_sig_allsig, Z_female, Z_male, binedges, zlim, struct_var, fignum, nokde)
-    fignum=plot_separate_figures_sorted(rois_pvals_sig_malessigonly, Z_female, Z_male, binedges, zlim,struct_var,fignum, nokde)
-    fignum=plot_separate_figures_sorted(rois_pvals_notsig, Z_female, Z_male, binedges, zlim,struct_var,fignum, nokde)
+    fignum=plot_separate_figures_sorted(rois_pvals_sig_femalesigonly, Z_female, Z_male, binedges, zlim, struct_var,0, nokde, working_dir)
+    fignum=plot_separate_figures_sorted(rois_pvals_sig_allsig, Z_female, Z_male, binedges, zlim, struct_var, fignum, nokde, working_dir)
+    fignum=plot_separate_figures_sorted(rois_pvals_sig_malessigonly, Z_female, Z_male, binedges, zlim,struct_var,fignum, nokde, working_dir)
+    fignum=plot_separate_figures_sorted(rois_pvals_notsig, Z_female, Z_male, binedges, zlim,struct_var,fignum, nokde, working_dir)
 
     plt.show()
     mystop=1
@@ -246,5 +247,6 @@ def plot_and_compute_zcores_by_gender(Z_time2, struct_var, roi_ids, working_dir)
     binedges = np.linspace(binmin-0.5, binmax+0.5, 24)
 
     nokde=1
-    plot_by_gender_no_kde(struct_var, Z_female, Z_male, roi_ids, reject_f, reject_m, pvals_corrected_f, pvals_corrected_m, binedges, nokde)
+    plot_by_gender_no_kde(struct_var, Z_female, Z_male, roi_ids, reject_f, reject_m, pvals_corrected_f,
+                          pvals_corrected_m, binedges, nokde, working_dir)
 
