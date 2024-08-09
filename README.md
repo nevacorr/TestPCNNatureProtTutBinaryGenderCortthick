@@ -45,4 +45,6 @@ You can reproduce the results in the alternate analysis which allows for interac
 
 1. **NormativeModel_Create_and_Apply_Genz_M_F_Separate
 
-This script uses functions contained in the other Python files located in this folder, plus some of the files in the main directory. 
+2. **Calculate_Effect_Size_and_CI_using_Zscore.py
+
+These scripts uses functions contained in the other Python files located in this folder, plus some of the files in the main directory. 
