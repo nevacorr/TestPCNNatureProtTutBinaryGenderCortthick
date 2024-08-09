@@ -50,4 +50,4 @@ You can reproduce the results in the alternate analysis which allows for interac
 
 2. **Calculate_Effect_Size_and_CI_using_Zscore_MFseparate.py** : run this to compute effect sizes and confidence intervals for effect sizes.
 
-These scripts uses functions contained in the other Python files located in this subfolder, plus some of the files in the main repository directory. 
+These scripts uses functions contained in the other Python files located in this folder, plus some of the files in the main repository folder. 
