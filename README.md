@@ -18,9 +18,9 @@ To install the required software, please execute:
 
 **visit2_all_subjects_used_in_test_set_cortthick.txt** contains the list of subjects whose post-COVID data were used to evaluate the effects of the COVID pandemic lockdowns across all programs.
 
-**visit1_euler_numbers.csv** contains the euler numbers for the left and right hemispheres for each study subect at the pre-COVID timepoint
+**visit1_euler_numbers.csv** contains the euler numbers for the left and right hemispheres for each study subect at the pre-COVID timepoint.
 
-**visit2_euler_numbers.csv** contains the euler numbers for the left and right hemispheres for each study subject at the post-COVID lockdown timepoint
+**visit2_euler_numbers.csv** contains the euler numbers for the left and right hemispheres for each study subject at the post-COVID lockdown timepoint.
 
 ## Running the analysis
 
