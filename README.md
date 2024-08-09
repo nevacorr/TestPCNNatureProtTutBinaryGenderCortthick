@@ -14,7 +14,7 @@ To install the required software, please execute:
 
 **Adol_CortThick_data.csv** contains the data used in the analysis.
 
-**visit1_subjects_used_to_create_normative_model_train_set_cortthick.txt** contains the list of subjects whose pre-COVID were used for model training across all programs.
+**visit1_subjects_used_to_create_normative_model_train_set_cortthick.txt** contains the list of subjects whose pre-COVID data were used for model training across all programs.
 
 **visit2_all_subjects_used_in_test_set_cortthick.txt** contains the list of subjects whose post-COVID data were used to evaluate the effects of the COVID pandemic lockdowns across all programs.
 
