@@ -44,7 +44,7 @@ def one_plot(ax, ptitle, ptitleB, Z_male_region, Z_female_region, binedges, zlim
     ax.legend([handles[idx] for idx in order], [labels[idx] for idx in order], fontsize=10)
     # plt.tight_layout()
 
-def plot_separate_figures_sorted(df, Z_female, Z_male, binedges, zlim, struct_var,f, nokde):
+def plot_separate_figures_sorted(df, Z_female, Z_male, binedges, zlim, struct_var,f, nokde, working_dir):
     sig_string_list = []
     bold_string_list = []
     if nokde == 1:
@@ -154,14 +154,14 @@ def plot_separate_figures_sorted(df, Z_female, Z_male, binedges, zlim, struct_va
             ptitleB = f'{bold_string_list[i]}'
             one_plot(ax6, ptitle, ptitleB, Z_male[region], Z_female[region], binedges, zlim, nokde)
             plt.savefig(
-                '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick/data/{}/plots/{}_{}.pdf'
-                .format(struct_var, figstr, f'fig{fignum}'), dpi=300, format='pdf')
+                '{}/data/{}/plots/{}_{}.pdf'
+                .format(working_dir, struct_var, figstr, f'fig{fignum}'), dpi=300, format='pdf')
             fignum += 1
 
         if i == df.shape[0]-1 and a != 0:
             plt.savefig(
-                '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick/data/{}/plots/{}_{}.pdf'
-                .format(struct_var, figstr, f'fig{fignum}'), dpi=300, format='pdf')
+                '{}/data/{}/plots/{}_{}.pdf'
+                .format(working_dir, struct_var, figstr, f'fig{fignum}'), dpi=300, format='pdf')
             fignum += 1
 
         plt.show(block=False)
@@ -201,7 +201,7 @@ def plot_by_gender_no_kde(struct_var, Z_female, Z_male, roi_ids, reject_f, rejec
     plt.show()
     mystop=1
 
-def plot_and_compute_zcores_by_gender(Z_time2, struct_var, roi_ids):
+def plot_and_compute_zcores_by_gender(Z_time2, struct_var, roi_ids, working_dir):
     #add gender to Z score dataframe
     #females have even subject numbers, males have odd subject numbers
     Z_time2['gender'] = Z_time2['participant_id'].apply(lambda x: 2 if x % 2 == 0 else 1)
@@ -230,7 +230,7 @@ def plot_and_compute_zcores_by_gender(Z_time2, struct_var, roi_ids):
     regions_reject_f = [roi_id for roi_id, reject_value in zip(roi_ids, reject_f) if reject_value]
     regions_reject_m = [roi_id for roi_id, reject_value in zip(roi_ids, reject_m) if reject_value]
 
-    filepath = '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick/'
+    filepath = f'{working_dir}/'
     if len(regions_reject_f) > 1 :
         write_list_to_file(regions_reject_f, filepath + f'regions_reject_null_{struct_var}_female.csv')
         write_list_to_file(regions_reject_m, filepath + f'regions_reject_null_{struct_var}_male.csv')

@@ -7,8 +7,9 @@ import pandas as pd
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+import os
 
-working_dir = '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick'
+working_dir = os.getcwd()
 
 # Specify filename for post-covid z-scores
 Z_time2_file = f'{working_dir}/predict_files/cortthick/Z_scores_by_region_postcovid_testset_Final.txt'

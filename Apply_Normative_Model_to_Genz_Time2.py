@@ -155,6 +155,6 @@ Z_time2.to_csv('{}/predict_files/{}/Z_scores_by_region_postcovid_testset_Final.t
                             .format(working_dir, struct_var), index=False)
 
 # Plot histograms of Z-scores
-plot_and_compute_zcores_by_gender(Z_time2, struct_var, roi_ids)
+plot_and_compute_zcores_by_gender(Z_time2, struct_var, roi_ids, working_dir)
 plt.show()
 

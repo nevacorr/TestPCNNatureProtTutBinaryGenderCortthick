@@ -202,7 +202,7 @@ def calculate_avg_brain_age_acceleration_apply_model(roi_ids, desc_string, all_d
                                 .format(working_dir, desc_string, struct_var), index=False)
 
 
-    plot_and_compute_zcores_by_gender(Z_time2, struct_var, roi_ids)
+    plot_and_compute_zcores_by_gender(Z_time2, struct_var, roi_ids, working_dir)
     plt.show()
 
     return mean_agediff_f, mean_agediff_m

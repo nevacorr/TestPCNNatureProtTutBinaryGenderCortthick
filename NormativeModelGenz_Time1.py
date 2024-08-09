@@ -283,7 +283,7 @@ Z_score_test_matrix.to_csv('{}/data/{}/Z_scores_by_region_validation_set.txt'. f
 if perform_train_test_split_precovid:
     Z_score_test = Z_score_test_matrix.copy()
     Z_score_test.rename(columns = {'subject_id_test': 'participant_id'}, inplace=True)
-    plot_and_compute_zcores_by_gender(Z_score_test, struct_var, roi_ids)
+    plot_and_compute_zcores_by_gender(Z_score_test, struct_var, roi_ids, working_dir)
 
 # Display plots of Rho and EV for validation set
 blr_metrics.sort_values(by=['Rho'], inplace=True, ignore_index=True)
