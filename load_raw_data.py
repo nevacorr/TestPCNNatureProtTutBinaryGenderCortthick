@@ -18,9 +18,9 @@ def load_raw_data(struct_var, visit, path):
     # Load data quality measures
     ##########
     if visit == 1:
-        euler = pd.read_csv(f'{path}/visit1_euler_numbers_18Sep2023.csv', header=None)
+        euler = pd.read_csv(f'{path}/visit1_euler_numbers.csv', header=None)
     elif visit == 2:
-        euler = pd.read_csv(f'{path}/visit2_euler_numbers_18Sep2023.csv', header=None)
+        euler = pd.read_csv(f'{path}/visit2_euler_numbers.csv', header=None)
 
     ##########
     # Average left and right hemisphere euler numbers
