@@ -26,7 +26,7 @@ spline_knots = 2
 perform_train_test_split_precovid = 1  # flag indicating whether training set was split into train and validation set
 filepath = os.getcwd()
 subjects_to_exclude = [525]  # subjects to exclude from analysis. Subject 525 had an incidental finding
-calc_CI_age_acc_bootstrap = 0  # specify whether to run bootstrap analysis for CI calculation
+calc_CI_age_acc_bootstrap = 1  # specify whether to run bootstrap analysis for CI calculation
 nbootstrap = 1000  #specify number of bootstraps
 
 # Turn off interactive mode, don't show plots unless plt.show() is specified
