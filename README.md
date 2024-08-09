@@ -46,8 +46,8 @@ clarification.
 
 You can reproduce the results in the alternate analysis which allows for interactions between the two sexes by creating separate normative models by running the following script which is in folder Separate_MF_Models:
 
-1. **NormativeModel_Create_and_Apply_Genz_M_F_Separate** : run this file to generate the normative models from the pre-COVID data and apply them to the post-COVID data. This also computes the average acceleartion in cortical thickness obseved in the post-COVID data.
+1. **NormativeModel_Create_and_Apply_Genz_M_F_Separate** : run this file to generate the normative models from the pre-COVID data and apply them to the post-COVID data. This also computes the average acceleration in cortical thickness obseved in the post-COVID data.
 
-2. **Calculate_Effect_Size_and_CI_using_Zscore.py** : run this to compute effect sizes and confidence intervals for effect sizes.
+2. **Calculate_Effect_Size_and_CI_using_Zscore_MFseparate.py** : run this to compute effect sizes and confidence intervals for effect sizes.
 
 These scripts uses functions contained in the other Python files located in this subfolder, plus some of the files in the main repository directory. 
