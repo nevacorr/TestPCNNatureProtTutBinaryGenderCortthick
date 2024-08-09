@@ -31,7 +31,7 @@ run_apply_norm_model = 1
 calc_brain_age_acc = 1
 calc_CI_age_acc_bootstrap = 1
 
-orig_data_dir = '/home/toddr/neva/PycharmProjects/TestPCNNatureProtTutBinaryGenderCortthick'
+orig_data_dir = os.getcwd()
 working_dir = os.getcwd()
 
 ageacc_from_bootstraps = {}
