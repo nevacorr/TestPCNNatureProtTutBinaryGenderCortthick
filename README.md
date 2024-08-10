@@ -44,7 +44,7 @@ clarification.
 
 ## Alternate analysis: Separate Models for Males and Females
 
-You can reproduce the results in the alternate analysis which allows for interactions between the two sexes by creating separate normative models by running the following script which is in folder Separate_MF_Models:
+You can reproduce the results in the alternate analysis which allows for interactions between the two sexes by creating separate normative models by running the following script which is in folder AlternateAnalysis:
 
 1. **NormativeModel_Create_and_Apply_Genz_M_F_Separate** : run this file to generate the normative models from the pre-COVID data and apply them to the post-COVID data. This also computes the average acceleration in cortical thickness observed in the post-COVID data.
 
