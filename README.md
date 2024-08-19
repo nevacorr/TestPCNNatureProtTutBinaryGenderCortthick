@@ -1,4 +1,4 @@
-# Adolescent Normative Modeling
+# Normative Modeling of Adolescent Cortical Thickness
 
 This project implements Bayesian linear regression normative modeling according to the procedure outlined by Rutherford et al. in Nature Protocols 2022 (https://doi.org/10.1038/s41596-022-00696-5).
 Here the modeling is applied to adolescent cortical thickness data collected at two time points (before and after the COVID-19 pandemic lockdowns) by Patricia Kuhl's laboratory at the University of Washington.
