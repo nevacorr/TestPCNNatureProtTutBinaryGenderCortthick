@@ -1,0 +1,21 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Normative Modeling of Adolescent Cortical Thickness
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Neva
+    name-particle: M
+    family-names: Corrigan
+    email: nevao@uw.edu
+    affiliation: University of Washington
+  - {}
+identifiers:
+  - type: url
+    value: >-
+      https://github.com/nevacorr/Adolescent_Normative_Modeling_CT_2024
+date-released: '2024-08-14'
